@@ -1,0 +1,40 @@
+[
+  {
+    "Nom": "TestPlayer",
+    "Niveau": 5,
+    "Exp": 1200,
+    "Pv": 15.5,
+    "Attributs": {
+      "Intel": 10.0,
+      "Force": 8.0,
+      "Constitution": 12.0,
+      "Dex": 7.0,
+      "Darkness": 0,
+      "MulIntel": 1.0,
+      "MulForce": 1.0,
+      "MulConst": 1.0,
+      "MulDex": 1.0
+    },
+    "BackgroundNom": "Noble déchu",
+    "ClasseNom": "Guerrier"
+  },
+  {
+    "Nom": "SecondPlayer",
+    "Niveau": 3,
+    "Exp": 600,
+    "Pv": 12.0,
+    "Attributs": {
+      "Intel": 8.0,
+      "Force": 9.0,
+      "Constitution": 10.0,
+      "Dex": 6.0,
+      "Darkness": 0,
+      "MulIntel": 1.0,
+      "MulForce": 1.0,
+      "MulConst": 1.0,
+      "MulDex": 1.0
+    },
+    "BackgroundNom": "Villageois",
+    "ClasseNom": "Mage"
+  }
+]

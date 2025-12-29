@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\DataStorage\rooms\" />
+  </ItemGroup>
+
+  <!-- Inclure les données (json) dans la publication -->
+  <ItemGroup>
+    <None Include="Data\DataStorage\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Ne pas embarquer les sauvegardes/meta actuelles dans le publish -->
+  <ItemGroup>
+    <None Remove="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
+    <Content Remove="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,112 @@
+[
+  {
+    "Nom": "Aline",
+    "Niveau": 2,
+    "Exp": 40,
+    "Attributs": {
+      "MulIntel": 1,
+      "MulForce": 1,
+      "MulConst": 1,
+      "MulDex": 1.3,
+      "Intel": 1,
+      "Force": 2,
+      "Constitution": 2,
+      "Dex": 3,
+      "Darkness": 0
+    },
+    "BackgroundNom": "Mercenaire",
+    "ClasseNom": "Voleur",
+    "Stats": {
+      "VieMax": 104,
+      "VieCourante": 104,
+      "Attaque": 4.9333334,
+      "Vitesse": 7.6899996
+    },
+    "Artefacts": [
+      "Bandelettes de puissance",
+      "Gants agiles",
+      "Regeneration",
+      "Amulette de force",
+      "Regeneration",
+      "Regeneration",
+      "Pierre d\u0027Inertie"
+    ],
+    "Argent": 20,
+    "RoomName": "ShopDelta",
+    "Mort": false,
+    "Etage": 1,
+    "Difficulte": "Facile",
+    "DifficulteLevel": 0,
+    "PointsNonDepenses": 0
+  },
+  {
+    "Nom": "mine",
+    "Niveau": 1,
+    "Exp": 0,
+    "Attributs": {
+      "MulIntel": 1,
+      "MulForce": 1.2,
+      "MulConst": 1.3,
+      "MulDex": 1,
+      "Intel": 2,
+      "Force": 1,
+      "Constitution": 1,
+      "Dex": 1,
+      "Darkness": 0
+    },
+    "BackgroundNom": "Noble dechu",
+    "ClasseNom": "Guerrier",
+    "Stats": {
+      "VieMax": 101.950005,
+      "VieCourante": 97.950005,
+      "Attaque": 3.4,
+      "Vitesse": 5.25
+    },
+    "Artefacts": [
+      "Cape du vent",
+      "Plastron solide"
+    ],
+    "Argent": 25,
+    "RoomName": "BattleChamber3",
+    "Mort": false,
+    "Etage": 1,
+    "Difficulte": "Facile",
+    "DifficulteLevel": 0,
+    "PointsNonDepenses": 0
+  },
+  {
+    "Nom": "test3",
+    "Niveau": 1,
+    "Exp": 0,
+    "Attributs": {
+      "MulIntel": 1,
+      "MulForce": 1,
+      "MulConst": 1,
+      "MulDex": 1.3,
+      "Intel": 1,
+      "Force": 2,
+      "Constitution": 2,
+      "Dex": 1,
+      "Darkness": 0
+    },
+    "BackgroundNom": "Mercenaire",
+    "ClasseNom": "Voleur",
+    "Stats": {
+      "VieMax": 102,
+      "VieCourante": 102,
+      "Attaque": 3.9666667,
+      "Vitesse": 5.4224997
+    },
+    "Artefacts": [
+      "Bandelettes de puissance",
+      "Gants agiles"
+    ],
+    "Argent": 25,
+    "RoomName": "BattleChamber3",
+    "Mort": false,
+    "Etage": 1,
+    "Difficulte": "Facile",
+    "DifficulteLevel": 0,
+    "PointsNonDepenses": 0
+  }
+]
