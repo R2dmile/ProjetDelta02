@@ -1,2 +1,0 @@
-C:\Users\Emile\source\repos\ProjetDelta02\ProjetDelta\bin\Release\net8.0\win-x64\publish\ProjetDelta.pdb
-C:\Users\Emile\source\repos\ProjetDelta02\ProjetDelta\bin\Release\net8.0\win-x64\publish\ProjetDelta.exe
