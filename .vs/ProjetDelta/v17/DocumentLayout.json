@@ -1,0 +1,816 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\systemes\\uijeu\\uijeusendconsole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\systemes\\uijeu\\uijeusendconsole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\artifacts\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\artifacts\\interfaces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\artifacts\\artefactbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\artifacts\\artefactbuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\player\\combattant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\player\\combattant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\monstres\\monstre.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\monstres\\monstre.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\player\\joueur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\player\\joueur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\systemes\\combat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\systemes\\combat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\logger\\combatlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\logger\\combatlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\logger\\combatdataitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\logger\\combatdataitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\player\\playercreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\player\\playercreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\rooms\\combatroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\rooms\\combatroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\logger\\icombatlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\logger\\icombatlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\systemes\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\systemes\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\systemes\\events\\gameoverexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\systemes\\events\\gameoverexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\narrationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\narrationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\rooms\\rooms.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\rooms\\rooms.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\monstres.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\monstres.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\rooms\\room.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\rooms\\room.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\rooms\\intersectionroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\rooms\\intersectionroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\rooms\\treasureroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\rooms\\treasureroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\rooms\\shoproom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\rooms\\shoproom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\monstrest2.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\monstrest2.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\monstrest3.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\monstrest3.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\systemes\\choice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\systemes\\choice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\engine\\uitext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\engine\\uitext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\engine\\uitext2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\engine\\uitext2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\engine\\iui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\engine\\iui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\backgrounds.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\backgrounds.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\dataloader\\roomloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\dataloader\\roomloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\dataloader\\playerloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\dataloader\\playerloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\donjon\\monstres\\monstrebuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\donjon\\monstres\\monstrebuilder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\dataclasses\\rooms\\rawroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\dataclasses\\rooms\\rawroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\sections.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\sections.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\dataclasses\\sections.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\dataclasses\\sections.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\datastorage\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\datastorage\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|c:\\users\\emile\\source\\repos\\projetdelta02\\projetdelta\\data\\dataclasses\\joueurdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4DFB987-DAAE-46CE-9D06-768C6E2F08C3}|ProjetDelta\\ProjetDelta.csproj|solutionrelative:projetdelta\\data\\dataclasses\\joueurdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Choice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Section.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\sections.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Stats.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\monstres.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Donjon\\MonstresHardcoder\\Slime.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\Menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Attributs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\QA.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Joueur\\Joueur.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\IUI.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\UIText.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 9,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Combat.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Combat.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Systemes\\Combat.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Combat.cs",
+              "RelativeToolTip": "ProjetDelta\\Systemes\\Combat.cs",
+              "ViewState": "AQIAAD8AAAAAAAAAAAAAAFUAAAAnAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T01:53:26.496Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "PlayerCreator.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\PlayerCreator.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Player\\PlayerCreator.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\PlayerCreator.cs",
+              "RelativeToolTip": "ProjetDelta\\Player\\PlayerCreator.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAgwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T01:17:57.695Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "CombatDataItem.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\CombatDataItem.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Logger\\CombatDataItem.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\CombatDataItem.cs",
+              "RelativeToolTip": "ProjetDelta\\Logger\\CombatDataItem.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAAAkAAAAEAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T15:02:34.453Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Monstre.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Monstres\\Monstre.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Monstres\\Monstre.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Monstres\\Monstre.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Monstres\\Monstre.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:43:09.619Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CombatLogger.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\CombatLogger.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Logger\\CombatLogger.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\CombatLogger.cs",
+              "RelativeToolTip": "ProjetDelta\\Logger\\CombatLogger.cs",
+              "ViewState": "AQIAAB4AAAAAAAAAAAAswBgAAAAnAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T19:17:01.862Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Interfaces.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Artifacts\\Interfaces.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Artifacts\\Interfaces.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Artifacts\\Interfaces.cs",
+              "RelativeToolTip": "ProjetDelta\\Artifacts\\Interfaces.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAcwCwAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T03:06:54.084Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Joueur.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\Joueur.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Player\\Joueur.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\Joueur.cs",
+              "RelativeToolTip": "ProjetDelta\\Player\\Joueur.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAADwvz0AAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:40:08.279Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CombatRoom.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\CombatRoom.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Rooms\\CombatRoom.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\CombatRoom.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Rooms\\CombatRoom.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAAD4vzEAAAAjAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T18:53:29.947Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UIJeuSendConsole.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\UIJeu\\UIJeuSendConsole.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Systemes\\UIJeu\\UIJeuSendConsole.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\UIJeu\\UIJeuSendConsole.cs",
+              "RelativeToolTip": "ProjetDelta\\Systemes\\UIJeu\\UIJeuSendConsole.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwB8AAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:37:38.852Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Combattant.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\Combattant.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Player\\Combattant.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Player\\Combattant.cs",
+              "RelativeToolTip": "ProjetDelta\\Player\\Combattant.cs",
+              "ViewState": "AQIAACUAAAAAAAAAAIAywDcAAABrAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:38:55.651Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ArtefactBuilder.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Artifacts\\ArtefactBuilder.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Artifacts\\ArtefactBuilder.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Artifacts\\ArtefactBuilder.cs",
+              "RelativeToolTip": "ProjetDelta\\Artifacts\\ArtefactBuilder.cs",
+              "ViewState": "AQIAABYAAAAAAAAAAAAgwDIAAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T21:00:01.309Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Program.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Program.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Program.cs",
+              "RelativeToolTip": "ProjetDelta\\Program.cs",
+              "ViewState": "AQIAADcAAAAAAAAAAADgv0wAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-26T20:28:45.647Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ICombatLogger.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\ICombatLogger.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Logger\\ICombatLogger.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Logger\\ICombatLogger.cs",
+              "RelativeToolTip": "ProjetDelta\\Logger\\ICombatLogger.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T19:16:37.42Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Game.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Game.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Systemes\\Game.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Game.cs",
+              "RelativeToolTip": "ProjetDelta\\Systemes\\Game.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T15:02:31.77Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "rooms.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\rooms\\rooms.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\rooms\\rooms.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\rooms\\rooms.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\rooms\\rooms.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAAaAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-21T21:37:08.023Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IntersectionRoom.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\IntersectionRoom.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Rooms\\IntersectionRoom.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\IntersectionRoom.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Rooms\\IntersectionRoom.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAAAowCgAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T18:55:12.161Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "TreasureRoom.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\TreasureRoom.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Rooms\\TreasureRoom.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\TreasureRoom.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Rooms\\TreasureRoom.cs",
+              "ViewState": "AQIAABYAAAAAAAAAAAD4vycAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T18:54:20.101Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "ShopRoom.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\ShopRoom.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Rooms\\ShopRoom.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\ShopRoom.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Rooms\\ShopRoom.cs",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAswCYAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T18:54:33.568Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "GameOverException.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\events\\GameOverException.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Systemes\\events\\GameOverException.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\events\\GameOverException.cs",
+              "RelativeToolTip": "ProjetDelta\\Systemes\\events\\GameOverException.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-23T02:23:34.095Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Room.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\Room.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Rooms\\Room.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Rooms\\Room.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Rooms\\Room.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:26:13.438Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "monstres.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstres.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\monstres.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstres.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\monstres.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-22T00:24:11.595Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "monstresT2.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstresT2.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\monstresT2.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstresT2.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\monstresT2.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-22T00:34:35.745Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "UIText.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\UIText.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Engine\\UIText.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\UIText.cs",
+              "RelativeToolTip": "ProjetDelta\\Engine\\UIText.cs",
+              "ViewState": "AQIAAH8AAAAAAAAAAAAYwCQAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:42:09.698Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "NarrationManager.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\NarrationManager.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\NarrationManager.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\NarrationManager.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\NarrationManager.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T16:41:45.254Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "UIText2.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\UIText2.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Engine\\UIText2.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\UIText2.cs",
+              "RelativeToolTip": "ProjetDelta\\Engine\\UIText2.cs",
+              "ViewState": "AQIAANMAAAAAAAAAAAAwwPMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:42:14.126Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "backgrounds.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\backgrounds.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\backgrounds.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\backgrounds.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\backgrounds.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-22T00:23:44.554Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "monstresT3.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstresT3.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\monstresT3.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\monstresT3.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\monstresT3.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-22T00:34:36.897Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Choice.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Choice.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Systemes\\Choice.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Systemes\\Choice.cs",
+              "RelativeToolTip": "ProjetDelta\\Systemes\\Choice.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:52:29.943Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "IUI.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\IUI.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Engine\\IUI.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Engine\\IUI.cs",
+              "RelativeToolTip": "ProjetDelta\\Engine\\IUI.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T22:37:47.505Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "PlayerLoader.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataLoader\\PlayerLoader.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataLoader\\PlayerLoader.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataLoader\\PlayerLoader.cs",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataLoader\\PlayerLoader.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAAAgwDEAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T21:47:59.075Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "MonstreBuilder.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Monstres\\MonstreBuilder.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Donjon\\Monstres\\MonstreBuilder.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Donjon\\Monstres\\MonstreBuilder.cs",
+              "RelativeToolTip": "ProjetDelta\\Donjon\\Monstres\\MonstreBuilder.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAADsAAABPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T02:28:49.241Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "RoomLoader.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataLoader\\RoomLoader.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataLoader\\RoomLoader.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataLoader\\RoomLoader.cs",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataLoader\\RoomLoader.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAIBJwBIAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T21:47:01.202Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "RawRoom.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\Rooms\\RawRoom.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataClasses\\Rooms\\RawRoom.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\Rooms\\RawRoom.cs",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataClasses\\Rooms\\RawRoom.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T21:46:07.02Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "sections.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\sections.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\sections.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\sections.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\sections.json",
+              "ViewState": "AQIAAE8AAAAAAAAAAAAuwHcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-21T19:21:23.268Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "Menu.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\Menu.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\UI\\Menu.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\Menu.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\UI\\Menu.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:41:46.868Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "Attributs.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Attributs.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Attributs.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Attributs.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Attributs.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:30:43.214Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "Slime.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Donjon\\MonstresHardcoder\\Slime.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Donjon\\MonstresHardcoder\\Slime.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Donjon\\MonstresHardcoder\\Slime.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Donjon\\MonstresHardcoder\\Slime.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T21:58:20.921Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "Sections.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\Sections.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataClasses\\Sections.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\Sections.cs",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataClasses\\Sections.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAIBJwCIAAAA3AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T16:41:56.5Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "players.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\players.json",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataStorage\\players.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataStorage\\players.json",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataStorage\\players.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-07-20T02:38:31.051Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "monstres.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\monstres.json",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Data\\monstres.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\monstres.json",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Data\\monstres.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACEAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-11-04T02:24:49.659Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "JoueurData.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\JoueurData.cs",
+              "RelativeDocumentMoniker": "ProjetDelta\\Data\\DataClasses\\JoueurData.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta02\\ProjetDelta\\Data\\DataClasses\\JoueurData.cs",
+              "RelativeToolTip": "ProjetDelta\\Data\\DataClasses\\JoueurData.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-20T02:38:19.643Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "QA.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\QA.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\UI\\QA.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\QA.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\UI\\QA.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:27:59.318Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "Choice.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Choice.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Choice.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Choice.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Choice.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T18:29:29.175Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "Game.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Game.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Game.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Game.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Game.cs",
+              "ViewState": "AQIAAFMAAAAAAAAAAAAwwFUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T18:31:14.299Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Stats.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Stats.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Stats.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Stats.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Stats.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAA4AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T02:43:01.684Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "sections.json",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\sections.json",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Data\\sections.json",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Data\\sections.json",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Data\\sections.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACwAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-11-04T16:19:55.459Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "Section.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Section.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Section.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Jeu\\Section.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Jeu\\Section.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T18:28:53.384Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "Joueur.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Joueur\\Joueur.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\Joueur\\Joueur.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\Joueur\\Joueur.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\Joueur\\Joueur.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-29T20:27:11.91Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "IUI.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\IUI.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\UI\\IUI.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\IUI.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\UI\\IUI.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAoAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-28T13:42:13.588Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "UIText.cs",
+              "DocumentMoniker": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\UIText.cs",
+              "RelativeDocumentMoniker": "..\\ProjetDelta\\ProjetDelta\\UI\\UIText.cs",
+              "ToolTip": "C:\\Users\\Emile\\source\\repos\\ProjetDelta\\ProjetDelta\\UI\\UIText.cs",
+              "RelativeToolTip": "..\\ProjetDelta\\ProjetDelta\\UI\\UIText.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-28T13:39:28.977Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
