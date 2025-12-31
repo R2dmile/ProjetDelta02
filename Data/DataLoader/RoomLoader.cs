@@ -19,8 +19,7 @@ namespace ProjetDelta.Data.DataLoader
         /// </summary>
         public Dictionary<string, Room> GetRooms(bool randomize = false, int etage = 1)
         {
-            string roomsFilePath = ResolvePath();
-            string json = File.ReadAllText(roomsFilePath);
+            string json = DataFileHelper.ReadText("Data/DataStorage/rooms/rooms.json");
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             RawRoomList rawRoomList = JsonSerializer.Deserialize<RawRoomList>(json, options) ?? new RawRoomList { rooms = new List<RawRoom>() };
@@ -28,25 +27,6 @@ namespace ProjetDelta.Data.DataLoader
             return randomize
                 ? BuildRandomizedRooms(rawRoomList.rooms, etage)
                 : BuildRooms(rawRoomList.rooms, etage);
-        }
-
-        private string ResolvePath()
-        {
-            var candidates = new[]
-            {
-                Path.Combine(AppContext.BaseDirectory, "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(AppContext.BaseDirectory, "..", "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(AppContext.BaseDirectory, "net8.0", "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine("..", "..", "..", "Data", "DataStorage", "rooms", "rooms.json"),
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjetDelta", "rooms.json")
-            }
-            .Select(p => Path.GetFullPath(p))
-            .ToList();
-            var found = candidates.FirstOrDefault(File.Exists);
-            return found ?? Path.Combine("..", "..", "..", "Data", "DataStorage", "rooms", "rooms.json");
         }
 
         private Dictionary<string, Room> BuildRooms(IEnumerable<RawRoom> raws, int etage)
@@ -176,11 +156,22 @@ namespace ProjetDelta.Data.DataLoader
                 };
             }
 
-            RawRoom NewIntersection(out RawRoom eliteChild, out RawRoom treasureChild)
+            RawRoom NewFountain()
+            {
+                return new RawRoom
+                {
+                    type = "FountainRoom",
+                    name = $"Fountain{interIdx}",
+                    description = "Une fontaine claire murmure, promettant un repos momentane."
+                };
+            }
+
+            RawRoom NewIntersection(out RawRoom eliteChild, out RawRoom treasureChild, out RawRoom fountainChild)
             {
                 var template = intersectionTemplates.Count > 0 ? intersectionTemplates[rng.Next(intersectionTemplates.Count)] : new RawRoom { description = "Un carrefour obscur." };
                 eliteChild = NewCombat(elite: true);
                 treasureChild = NewTreasure();
+                fountainChild = NewFountain();
                 return new RawRoom
                 {
                     type = "IntersectionRoom",
@@ -189,6 +180,7 @@ namespace ProjetDelta.Data.DataLoader
                     choices = new Dictionary<string, string>
                     {
                         { "Combattre un elite", eliteChild.name },
+                        { "Fontaine de soins", fountainChild.name },
                         { "Explorer un tresor", treasureChild.name }
                     }
                 };
@@ -239,10 +231,11 @@ namespace ProjetDelta.Data.DataLoader
                 }
                 if (roll < 0.45 && intersectionTemplates.Count > 0)
                 {
-                    var inter = NewIntersection(out var eliteChild, out var treasureChild);
+                    var inter = NewIntersection(out var eliteChild, out var treasureChild, out var fountainChild);
                     mainPath.Add(inter);
                     extraRooms.Add(eliteChild);
                     extraRooms.Add(treasureChild);
+                    extraRooms.Add(fountainChild);
                     // Comptabiliser un combat potentiel via l'elite
                     combatCount++;
                     continue;

@@ -67,7 +67,7 @@ namespace ProjetDelta.Donjon.Rooms
             ui.TerminerLigne();
 
             // Pause avant combat
-            ui.QuestionReponse("Appuie sur Entree pour commencer le combat");
+            ui.GoNext("Appuie sur Entree pour commencer le combat");
 
             var combat = new Combat(joueur, _monstres, ui);
             combat.Demarrer();
@@ -77,7 +77,7 @@ namespace ProjetDelta.Donjon.Rooms
             }
             Console.WriteLine("Combat termine");
 
-            ui.QuestionReponse("Appuie sur Entree pour voir les recompenses");
+            ui.GoNext("Appuie sur Entree pour voir les recompenses");
 
             // Recompenses
             int Triangulaire(int t)
@@ -150,15 +150,15 @@ namespace ProjetDelta.Donjon.Rooms
                 return false;
             }
 
-            // Reroll chain: each success triggers another roll with -1% absolute chance
+            // Tentative unique (nerf : plus de reroll en chaine) + une relance bonus si un loot tombe
             double ceRoll = baseChanceEpic;
             double crRoll = baseChanceRare;
             double ccRoll = baseChanceCommon;
-            while (TryOne(ref ceRoll, ref crRoll, ref ccRoll))
+            bool drop = TryOne(ref ceRoll, ref crRoll, ref ccRoll);
+            if (drop)
             {
-                ceRoll = Math.Max(0, ceRoll - 0.01);
-                crRoll = Math.Max(0, crRoll - 0.01);
-                ccRoll = Math.Max(0, ccRoll - 0.01);
+                // Relance supplementaire
+                TryOne(ref ceRoll, ref crRoll, ref ccRoll);
             }
             if (_isElite)
             {

@@ -37,5 +37,8 @@ namespace ProjetDelta.Data.DataClasses
 
         [JsonPropertyName("intel")]
         public float? Intel { get; set; }
+
+        [JsonPropertyName("color")]
+        public string? Color { get; set; }
     }
 }

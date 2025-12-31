@@ -174,46 +174,21 @@ namespace ProjetDelta.Donjon.Monstres
             var result = new List<MonstreTemplate>();
             foreach (var fichier in dossiers)
             {
-                string cheminFichier = ResolvePath(fichier);
-                if (!File.Exists(cheminFichier))
-                {
-                    Console.WriteLine($"[WARN] Fichier monstres introuvable : {cheminFichier}");
-                    continue;
-                }
                 try
                 {
-                    result.AddRange(ChargerMonstres(cheminFichier, fichier));
+                    var json = DataFileHelper.ReadText(Path.Combine("Data", "DataStorage", fichier));
+                    result.AddRange(ChargerMonstres(json, fichier));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[WARN] Lecture/parse echouee pour {cheminFichier} : {ex.Message}");
+                    Console.WriteLine($"[WARN] Lecture/parse echouee pour {fichier} : {ex.Message}");
                 }
             }
             return result;
         }
 
-        private string ResolvePath(string fileName)
+        private List<MonstreTemplate> ChargerMonstres(string json, string fichierNom)
         {
-            var candidates = new[]
-            {
-                Path.Combine(AppContext.BaseDirectory, "Data", "DataStorage", fileName),
-                Path.Combine(AppContext.BaseDirectory, "..", "Data", "DataStorage", fileName),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "Data", "DataStorage", fileName),
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Data", "DataStorage", fileName),
-                Path.Combine(AppContext.BaseDirectory, "net8.0", "Data", "DataStorage", fileName),
-                Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataStorage", fileName),
-                Path.Combine("..", "..", "..", "Data", "DataStorage", fileName)
-            }
-            .Select(p => Path.GetFullPath(p))
-            .ToList();
-
-            var found = candidates.FirstOrDefault(File.Exists);
-            return found ?? Path.Combine("..", "..", "..", "Data", "DataStorage", fileName);
-        }
-
-        private List<MonstreTemplate> ChargerMonstres(string cheminFichier, string fichierNom)
-        {
-            string json = File.ReadAllText(cheminFichier, System.Text.Encoding.UTF8);
             var monstres = new List<MonstreTemplate>();
             int tierParDefaut = 1;
             var matchTier = System.Text.RegularExpressions.Regex.Match(fichierNom, @"T(\d+)");

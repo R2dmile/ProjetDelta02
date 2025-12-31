@@ -1,0 +1,164 @@
+﻿{
+  "monstres": [
+    {
+      "nom": "dragon d'or ancien",
+      "couleur": "yellow",
+      "attributs": {
+        "intel": 20,
+        "force": 30,
+        "constitution": 29,
+        "dex": 12,
+        "darkness": 10
+      },
+      "stats": {
+        "vie": 450,
+        "attaque": 30,
+        "vitesse": 14
+      }
+    },
+    {
+      "nom": "archiliche",
+      "couleur": "gray",
+      "attributs": {
+        "intel": 28,
+        "force": 18,
+        "constitution": 22,
+        "dex": 15,
+        "darkness": 14
+      },
+      "stats": {
+        "vie": 250,
+        "attaque": 25,
+        "vitesse": 12
+      }
+    },
+    {
+      "nom": "golem de mithril primordial",
+      "couleur": "cyan",
+      "attributs": {
+        "intel": 5,
+        "force": 35,
+        "constitution": 32,
+        "dex": 5,
+        "darkness": 8
+      },
+      "stats": {
+        "vie": 600,
+        "attaque": 35,
+        "vitesse": 6
+      }
+    },
+    {
+      "nom": "seigneur démon majeur (Archidiable)",
+      "couleur": "green",
+      "attributs": {
+        "intel": 22,
+        "force": 26,
+        "constitution": 25,
+        "dex": 20,
+        "darkness": 13
+      },
+      "stats": {
+        "vie": 350,
+        "attaque": 30,
+        "vitesse": 22
+      }
+    },
+    {
+      "nom": "tiamat (forme avatar mineure)",
+      "couleur": "white",
+      "attributs": {
+        "intel": 18,
+        "force": 32,
+        "constitution": 30,
+        "dex": 10,
+        "darkness": 12
+      },
+      "stats": {
+        "vie": 500,
+        "attaque": 28,
+        "vitesse": 10
+      }
+    },
+    {
+      "nom": "kraken des profondeurs abyssales",
+      "couleur": "dark blue",
+      "attributs": {
+        "intel": 15,
+        "force": 28,
+        "constitution": 27,
+        "dex": 16,
+        "darkness": 11
+      },
+      "stats": {
+        "vie": 400,
+        "attaque": 26,
+        "vitesse": 15
+      }
+    },
+    {
+      "nom": "géant du ciel tempétueux primordial",
+      "couleur": "blanc",
+      "attributs": {
+        "intel": 16,
+        "force": 33,
+        "constitution": 30,
+        "dex": 8,
+        "darkness": 10
+      },
+      "stats": {
+        "vie": 550,
+        "attaque": 32,
+        "vitesse": 11
+      }
+    },
+    {
+      "nom": "élémentaire du chaos pur",
+      "couleur": "purple",
+      "attributs": {
+        "intel": 12,
+        "force": 20,
+        "constitution": 26,
+        "dex": 25,
+        "darkness": 12
+      },
+      "stats": {
+        "vie": 300,
+        "attaque": 24,
+        "vitesse": 30
+      }
+    },
+    {
+      "nom": "sphinx transcendant",
+      "couleur": "yellow",
+      "attributs": {
+        "intel": 30,
+        "force": 20,
+        "constitution": 24,
+        "dex": 13,
+        "darkness": 13
+      },
+      "stats": {
+        "vie": 200,
+        "attaque": 20,
+        "vitesse": 10
+      }
+    },
+    {
+      "nom": "avatar de la destruction",
+      "couleur": "blue",
+      "attributs": {
+        "intel": 10,
+        "force": 34,
+        "constitution": 31,
+        "dex": 7,
+        "darkness": 15
+      },
+      "stats": {
+        "vie": 650,
+        "attaque": 36,
+        "vitesse": 8
+      }
+    }
+  ]
+}

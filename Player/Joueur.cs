@@ -25,6 +25,8 @@ namespace ProjetDelta.Player
         public int Niveau => _niveau;
         public int Exp => _exp;
         public int PointsNonDepenses => _pointsNonDepenses;
+        public string ClasseNom => _classeNom;
+        public string BackgroundNom => _backgroundNom;
 
         public string RoomName { get; set; } = string.Empty;
 
@@ -161,11 +163,14 @@ namespace ProjetDelta.Player
             }
             if (leveled)
             {
-                DistribuerPoints(ui);
+                if (_pointsNonDepenses > 0)
+                {
+                    ui?.Afficher($"Points disponibles : {_pointsNonDepenses}. Utilise la commande 'levelup' pour les depenser quand tu veux.");
+                }
             }
         }
 
-        private void DistribuerPoints(IUI? ui)
+        public void DistribuerPoints(IUI? ui)
         {
             if (ui == null) return;
             while (_pointsNonDepenses > 0)

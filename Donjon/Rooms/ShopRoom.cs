@@ -46,30 +46,47 @@ namespace ProjetDelta.Donjon.Rooms
             var dtos = ArtefactLoader.GetDtos();
             var commonsPool = dtos.Where(d => string.IsNullOrWhiteSpace(d.Rarity) || d.Rarity.Equals("common", StringComparison.OrdinalIgnoreCase)).ToList();
             var raresPool = dtos.Where(d => d.Rarity != null && d.Rarity.Equals("rare", StringComparison.OrdinalIgnoreCase)).ToList();
+            var epicsPool = dtos.Where(d => d.Rarity != null && d.Rarity.Equals("epic", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            // Comptes par étage (ex: etage1 = 4 communs + 1 rare ; etage5 = 4 rares + 1 épic)
+            (int commons, int rares, int epics) GetCounts(int etage) => etage switch
+            {
+                <= 1 => (4, 1, 0),
+                2 => (3, 2, 0),
+                3 => (2, 2, 1),
+                4 => (1, 3, 1),
+                _ => (0, 4, 1)
+            };
+            var counts = GetCounts(joueur.Etage);
+
+            List<ArtefactDto> Pick(List<ArtefactDto> pool, int n)
+            {
+                return pool.OrderBy(_ => rand.Next()).Take(Math.Min(n, pool.Count)).ToList();
+            }
+
+            var selectedCommons = Pick(commonsPool, counts.commons);
+            var selectedRares = Pick(raresPool, counts.rares);
+            var selectedEpics = Pick(epicsPool, counts.epics);
+
             var options = new Dictionary<string, (string label, int price, string idOrNom, ArtefactDto dto)>();
             int idx = 1;
             const int prixRandomBase = 10;
             float priceMult = 1f + 0.05f * Math.Max(0, joueur.Etage - 1); // +5% par etage
-            int Scale(int price) => (int)Math.Ceiling(price * priceMult);
-            foreach (var itemId in _items)
+            int Scale(int p) => (int)Math.Ceiling(p * priceMult);
+            int PriceCommon() => (int)Math.Ceiling(20 * priceMult);
+            int PriceRare() => (int)Math.Ceiling(90 * priceMult);
+            int PriceEpic() => (int)Math.Ceiling(220 * priceMult);
+
+            void AddOption(ArtefactDto dto, int price)
             {
-                if (string.IsNullOrWhiteSpace(itemId)) continue;
-                if (itemId.Equals("random_common", StringComparison.OrdinalIgnoreCase))
-                {
-                    int prixRandomLocal = Scale(prixRandomBase);
-                    options[idx.ToString().ToUpperInvariant()] = ($"Artefact aleatoire commun - {prixRandomLocal} or", prixRandomLocal, "__RANDOM__", new ArtefactDto { Nom = "Artefact commun aleatoire" });
-                    idx++;
-                    continue;
-                }
-                var dto = dtos.FirstOrDefault(d => string.Equals(d.Id, itemId, StringComparison.OrdinalIgnoreCase) ||
-                                                   string.Equals(d.Nom, itemId, StringComparison.OrdinalIgnoreCase));
-                if (dto == null) continue;
-                bool isRare = string.Equals(dto.Rarity, "rare", StringComparison.OrdinalIgnoreCase);
-                int price = Scale(isRare ? 75 : 25); // rare plus cher
                 var desc = string.IsNullOrWhiteSpace(dto.Description) ? "" : $" ({dto.Description})";
                 options[idx.ToString().ToUpperInvariant()] = ($"{dto.Nom ?? dto.Id} - {price} or{desc}", price, dto.Id ?? dto.Nom ?? string.Empty, dto);
                 idx++;
             }
+
+            foreach (var dto in selectedCommons) AddOption(dto, PriceCommon());
+            foreach (var dto in selectedRares) AddOption(dto, PriceRare());
+            foreach (var dto in selectedEpics) AddOption(dto, PriceEpic());
 
             // Stock aléatoire pour chaque option
             Dictionary<string, int> stock = new Dictionary<string, int>();
@@ -139,10 +156,11 @@ namespace ProjetDelta.Donjon.Rooms
             while (continuer)
             {
                 ui.Afficher($"Ton argent: {joueur.Argent}");
-                // option acheter tout si possible
-                int coutTotal = options
-                    .Where(kv => stock.GetValueOrDefault(kv.Key, 0) > 0)
-                    .Sum(kv => kv.Value.price * stock.GetValueOrDefault(kv.Key, 0));
+                // option acheter tout si possible (hors soin)
+                var purchasables = options
+                    .Where(kv => stock.GetValueOrDefault(kv.Key, 0) > 0 && kv.Value.idOrNom != "__HEAL__")
+                    .ToList();
+                int coutTotal = purchasables.Sum(kv => kv.Value.price * stock.GetValueOrDefault(kv.Key, 0));
                 var availableOptions = options
                     .Where(kv => stock.GetValueOrDefault(kv.Key, 0) > 0)
                     .ToDictionary(k => k.Key, v => BuildLabel(v.Key, v.Value));
@@ -164,16 +182,21 @@ namespace ProjetDelta.Donjon.Rooms
                         ui.Afficher("Pas assez d'or pour tout acheter.");
                         continue;
                     }
-                    foreach (var kv in options.Where(kv => stock.GetValueOrDefault(kv.Key, 0) > 0).ToList())
+                    var gains = new List<string>();
+                    foreach (var kv in purchasables)
                     {
                         var selectionAll = kv.Value;
                         int qty = stock.GetValueOrDefault(kv.Key, 0);
                         for (int i = 0; i < qty; i++)
                         {
                             if (!joueur.DepenserArgent(selectionAll.price)) { break; }
-                            TraiterAchat(ui, joueur, selectionAll, dtos, commonsPool, raresPool, rand, healAmount);
+                            TraiterAchat(ui, joueur, selectionAll, dtos, commonsPool, raresPool, rand, healAmount, silent: true, gains: gains);
                             stock[kv.Key]--;
                         }
+                    }
+                    if (gains.Count > 0)
+                    {
+                        ui.Afficher($"Achat groupé : {gains.Count} artefacts obtenus ({string.Join(", ", gains.Distinct())})");
                     }
                     continue;
                 }
@@ -197,7 +220,7 @@ namespace ProjetDelta.Donjon.Rooms
             }
         }
 
-        private bool TraiterAchat(IUI ui, Joueur joueur, (string label, int price, string idOrNom, ArtefactDto dto) selection, IEnumerable<ArtefactDto> dtos, IEnumerable<ArtefactDto> commonsPool, IEnumerable<ArtefactDto> raresPool, Random rand, float healAmount)
+        private bool TraiterAchat(IUI ui, Joueur joueur, (string label, int price, string idOrNom, ArtefactDto dto) selection, IEnumerable<ArtefactDto> dtos, IEnumerable<ArtefactDto> commonsPool, IEnumerable<ArtefactDto> raresPool, Random rand, float healAmount, bool silent = false, List<string>? gains = null)
         {
             var dtosList = dtos.ToList();
             var commonsList = commonsPool.ToList();
@@ -239,7 +262,7 @@ namespace ProjetDelta.Donjon.Rooms
                     ui.Afficher("Pas assez d'artefacts pour un pack.");
                     return false;
                 }
-                ui.Afficher($"Tu ouvres un pack de {count} artefacts :");
+                if (!silent) ui.Afficher($"Tu ouvres un pack de {count} artefacts :");
                 for (int i = 0; i < count; i++)
                 {
                     var pick = pool[rand.Next(pool.Count)];
@@ -253,16 +276,17 @@ namespace ProjetDelta.Donjon.Rooms
                     {
                         joueur.EquipArtefact(a);
                         var d = pick.Description ?? a.Description;
-                        ui.Afficher($"- {a.Nom} equipe. {d}");
+                        if (!silent) ui.Afficher($"- {a.Nom} equipe. {d}");
+                        gains?.Add(a.Nom);
                     }
                 }
-                ui.QuestionReponse("Appuie sur Entree pour continuer.");
+                if (!silent) ui.GoNext("Appuie sur Entree pour continuer.");
                 return true;
             }
             else if (selection.idOrNom == "__HEAL__")
             {
                 joueur.Heal(healAmount);
-                ui.Afficher($"Tu te soignes instantanement de {healAmount} PV. PV actuels: {joueur.PV}/{joueur.PVMax}. Il te reste {joueur.Argent} or.");
+                if (!silent) ui.Afficher($"Tu te soignes instantanement de {healAmount} PV. PV actuels: {joueur.PV}/{joueur.PVMax}. Il te reste {joueur.Argent} or.");
                 return true;
             }
             else
@@ -277,14 +301,18 @@ namespace ProjetDelta.Donjon.Rooms
             }
             joueur.EquipArtefact(artefact);
             var desc = descDto?.Description ?? artefact.Description;
-            ui.Afficher($"Tu achetes et equipes : {artefact.Nom}. Il te reste {joueur.Argent} or.");
-            if (!string.IsNullOrWhiteSpace(desc))
+            gains?.Add(artefact.Nom);
+            if (!silent)
             {
-                ui.Afficher($"Description : {desc}");
-            }
-            if (selection.idOrNom == "__RANDOM__" || selection.idOrNom == "__RARE__")
-            {
-                ui.QuestionReponse("Appuie sur Entree pour continuer.");
+                ui.Afficher($"Tu achetes et equipes : {artefact.Nom}. Il te reste {joueur.Argent} or.");
+                if (!string.IsNullOrWhiteSpace(desc))
+                {
+                    ui.Afficher($"Description : {desc}");
+                }
+                if (selection.idOrNom == "__RANDOM__" || selection.idOrNom == "__RARE__")
+                {
+                    ui.GoNext("Appuie sur Entree pour continuer.");
+                }
             }
             return true;
         }

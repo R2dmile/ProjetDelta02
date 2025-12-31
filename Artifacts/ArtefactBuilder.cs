@@ -17,6 +17,10 @@ namespace ProjetDelta.Artifacts
         private SimpleTrigger? _onCombatEnd;
         private SimpleTrigger? _onEquip;
         private TurnTrigger? _onTurnStart;
+        private string _color = "green";
+
+        private static string NormalizeColor(string color) =>
+            string.IsNullOrWhiteSpace(color) ? "green" : color.Trim().ToLowerInvariant();
 
         public ArtefactBuilder OnAttack(AttackTrigger action)
         {
@@ -66,9 +70,15 @@ namespace ProjetDelta.Artifacts
             return this;
         }
 
+        public ArtefactBuilder AvecCouleur(string color)
+        {
+            _color = NormalizeColor(color);
+            return this;
+        }
+
         public IArtefact Build()
         {
-            return new TriggerArtefact(_nom, _description, _onAttack, _onDamageTaken, _onCombatStart, _onCombatEnd, _onEquip, _onTurnStart);
+            return new TriggerArtefact(_nom, _description, _onAttack, _onDamageTaken, _onCombatStart, _onCombatEnd, _onEquip, _onTurnStart, _color);
         }
     }
 }

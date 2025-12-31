@@ -15,6 +15,10 @@ namespace ProjetDelta.Player
     public delegate void DamageTakenHandler(ref float degats);
     public abstract class Combattant
     {
+        // Multiplicateurs globaux ajustes pendant les combats (sudden death)
+        internal static float GlobalDamageMultiplier { get; set; } = 1f;
+        internal static float GlobalHealMultiplier { get; set; } = 1f;
+        internal static float GlobalDodgeMultiplier { get; set; } = 1f;
         protected Attributs _attributs = new Attributs();
         protected Stats _stats = new Stats();
         protected string _nom = string.Empty;
@@ -107,7 +111,7 @@ namespace ProjetDelta.Player
 
         public virtual void Attaquer(Combattant cible, float multiplicateurDegats = 1f)
         {
-            float degats = _stats.Attaque * multiplicateurDegats;
+            float degats = _stats.Attaque * multiplicateurDegats * GlobalDamageMultiplier;
             // L'attaquant peut modifier les degats via ses artefacts avant l'application
             OnAttack?.Invoke(cible, ref degats);
 
@@ -170,6 +174,7 @@ namespace ProjetDelta.Player
         public virtual void Heal(float amount)
         {
             // Un soin est equivalent a infliger des degats negatifs.
+            amount *= GlobalHealMultiplier;
             if (_stats.VieCourante >= _stats.VieMax) return;
             _stats.SubirDegats(-amount);
         }
@@ -185,6 +190,8 @@ namespace ProjetDelta.Player
             }
             string hpCourant = includeHp ? _stats.VieCourante.ToString() : string.Empty;
             string hpTotal = includeHp ? _stats.VieMax.ToString() : string.Empty;
+            var color = Artefacts.FirstOrDefault(a => a.Nom.Equals(artefactNom, StringComparison.OrdinalIgnoreCase))?.Color;
+            if (string.IsNullOrWhiteSpace(color)) color = "green";
             _logger?.Log(new CombatDataItem
             {
                 Event = TypeEvenement.Artefact,
@@ -194,8 +201,8 @@ namespace ProjetDelta.Player
                 DegatSubi = -deltaPv,
                 HpCourant = hpCourant,
                 HpTotal = hpTotal,
-                Type = "green",
-                CouleurAtt = Couleur,
+                Type = color,
+                CouleurAtt = color,
                 CouleurDef = Couleur,
             });
         }

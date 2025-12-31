@@ -1,0 +1,4 @@
+{
+  // Force C# extension to build/debug using the right project/solution
+  "dotnet.defaultSolution": "ProjetDelta.sln"
+}

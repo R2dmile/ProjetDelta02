@@ -1,0 +1,38 @@
+[
+  {
+    "Nom": "Noble dechu",
+    "Description": "Ancien noble qui a perdu ses titres, dote d'une grande erudition.",
+    "ArtefactId": "cape_vent",
+    "Attributs": {
+      "Intel": 6,
+      "Force": 1,
+      "Constitution": 1,
+      "Dex": 2,
+      "Darkness": 0
+    }
+  },
+  {
+    "Nom": "Villageois",
+    "Description": "Issu d'une vie modeste, vous avez appris a vous adapter aux circonstances.",
+    "ArtefactId": "bracelet_solide",
+    "Attributs": {
+      "Intel": 2,
+      "Force": 2,
+      "Constitution": 2,
+      "Dex": 3,
+      "Darkness": 0
+    }
+  },
+  {
+    "Nom": "Mercenaire",
+    "Description": "Combattant experimente, habitue aux situations dangereuses.",
+    "ArtefactId": "bandelettes_puissance",
+    "Attributs": {
+      "Intel": 1,
+      "Force": 6,
+      "Constitution": 2,
+      "Dex": 1,
+      "Darkness": 0
+    }
+  }
+]

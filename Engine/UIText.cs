@@ -83,6 +83,17 @@ namespace ProjetDelta.UI
                 return input ?? "";
             }
         }
+
+        public void GoNext(string prompt = "Appuie sur Entree pour continuer.")
+        {
+            var message = string.IsNullOrWhiteSpace(prompt) ? "Appuie sur Entree pour continuer." : prompt;
+            QuestionReponse(message);
+        }
+
+        public void UpdatePlayerState(UIPlayerState state)
+        {
+            // Pas de HUD graphique pour cette UI
+        }
         //a rajouter choix bloques
         public (string, string) ChoisirOption(string titre, Dictionary<string, string> options)
         {

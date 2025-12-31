@@ -15,5 +15,8 @@ namespace ProjetDelta.Data.DataClasses
         public int HighestDifficultyUnlocked { get; set; } = 0; // 0 = Facile, 1 = Normal, 2 = Difficile, ...
         public int BossTestLevelUnlocked { get; set; } = 0; // niveau de test du boss disponible
         public int BossTestBestLevel { get; set; } = 0; // meilleur niveau atteint
+        public bool BlazorUnlocked { get; set; } = false; // Ancien flag, conserve pour compat
+        public bool MauiUnlocked { get; set; } = false;   // Upgrade payante pour UI MAUI/Blazor
+        public bool UseBlazorUI { get; set; } = false;    // Pref par defaut au lancement
     }
 }

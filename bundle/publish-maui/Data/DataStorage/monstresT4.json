@@ -1,0 +1,164 @@
+﻿{
+  "monstres": [
+    {
+      "nom": "troll des glaces ancien",
+      "couleur": "bleuâtre givré",
+      "attributs": {
+        "intel": 8,
+        "force": 25,
+        "constitution": 22,
+        "dex": 7,
+        "darkness": 5
+      },
+      "stats": {
+        "vie": 118,
+        "attaque": 14,
+        "vitesse": 9
+      }
+    },
+    {
+      "nom": "liche mineure",
+      "couleur": "osseux et noir",
+      "attributs": {
+        "intel": 20,
+        "force": 12,
+        "constitution": 18,
+        "dex": 10,
+        "darkness": 10
+      },
+      "stats": {
+        "vie": 102,
+        "attaque": 14,
+        "vitesse": 8
+      }
+    },
+    {
+      "nom": "golem de pierre colossal",
+      "couleur": "gris rocheux",
+      "attributs": {
+        "intel": 2,
+        "force": 28,
+        "constitution": 26,
+        "dex": 3,
+        "darkness": 4
+      },
+      "stats": {
+        "vie": 125,
+        "attaque": 15,
+        "vitesse": 6
+      }
+    },
+    {
+      "nom": "démon mineur (Diablotin majeur)",
+      "couleur": "rouge et noir",
+      "attributs": {
+        "intel": 14,
+        "force": 16,
+        "constitution": 19,
+        "dex": 15,
+        "darkness": 9
+      },
+      "stats": {
+        "vie": 108,
+        "attaque": 13,
+        "vitesse": 16
+      }
+    },
+    {
+      "nom": "dragonnet venimeux",
+      "couleur": "vert émeraude sombre",
+      "attributs": {
+        "intel": 10,
+        "force": 19,
+        "constitution": 17,
+        "dex": 12,
+        "darkness": 7
+      },
+      "stats": {
+        "vie": 115,
+        "attaque": 14,
+        "vitesse": 14
+      }
+    },
+    {
+      "nom": "tyran oculaire (sans rayons majeurs)",
+      "couleur": "peau violette et yeux multiples",
+      "attributs": {
+        "intel": 16,
+        "force": 10,
+        "constitution": 15,
+        "dex": 11,
+        "darkness": 8
+      },
+      "stats": {
+        "vie": 98,
+        "attaque": 13,
+        "vitesse": 7
+      }
+    },
+    {
+      "nom": "géant de givre",
+      "couleur": "blanc bleuté",
+      "attributs": {
+        "intel": 7,
+        "force": 27,
+        "constitution": 24,
+        "dex": 5,
+        "darkness": 5
+      },
+      "stats": {
+        "vie": 122,
+        "attaque": 15,
+        "vitesse": 7
+      }
+    },
+    {
+      "nom": "élémentaire de feu majeur",
+      "couleur": "rougeoyant orange",
+      "attributs": {
+        "intel": 6,
+        "force": 18,
+        "constitution": 20,
+        "dex": 17,
+        "darkness": 8
+      },
+      "stats": {
+        "vie": 110,
+        "attaque": 14,
+        "vitesse": 15
+      }
+    },
+    {
+      "nom": "lamia séductrice",
+      "couleur": "haut humain, bas serpent",
+      "attributs": {
+        "intel": 15,
+        "force": 13,
+        "constitution": 16,
+        "dex": 14,
+        "darkness": 7
+      },
+      "stats": {
+        "vie": 95,
+        "attaque": 12,
+        "vitesse": 11
+      }
+    },
+    {
+      "nom": "chevalier de la mort",
+      "couleur": "armure noire ornée",
+      "attributs": {
+        "intel": 12,
+        "force": 23,
+        "constitution": 21,
+        "dex": 10,
+        "darkness": 9
+      },
+      "stats": {
+        "vie": 120,
+        "attaque": 15,
+        "vitesse": 10
+      }
+    }
+  ]
+}

@@ -11,6 +11,7 @@ namespace ProjetDelta.Artifacts
     {
         string Nom { get; }
         string? Description { get; }
+        string Color { get; }
         void OnCombatStart(Combattant bearer);
         void OnCombatEnd(Combattant bearer);
         void EquipTo(Combattant bearer);
@@ -32,6 +33,10 @@ namespace ProjetDelta.Artifacts
         private readonly SimpleTrigger? _onCombatEnd;
         private readonly SimpleTrigger? _onEquip;
         private readonly TurnTrigger? _onTurnStart;
+        public string Color { get; private set; }
+
+        private static string NormalizeColor(string color) =>
+            string.IsNullOrWhiteSpace(color) ? "green" : color.Trim().ToLowerInvariant();
 
         public TriggerArtefact(
             string nom,
@@ -41,7 +46,8 @@ namespace ProjetDelta.Artifacts
             SimpleTrigger? onCombatStart = null,
             SimpleTrigger? onCombatEnd = null,
             SimpleTrigger? onEquip = null,
-            TurnTrigger? onTurnStart = null
+            TurnTrigger? onTurnStart = null,
+            string color = "green"
         )
         {
             Nom = nom;
@@ -52,6 +58,12 @@ namespace ProjetDelta.Artifacts
             _onCombatEnd = onCombatEnd;
             _onEquip = onEquip;
             _onTurnStart = onTurnStart;
+            Color = NormalizeColor(color);
+        }
+
+        internal void SetColor(string color)
+        {
+            Color = NormalizeColor(color);
         }
 
         public  void Register(Combattant bearer)

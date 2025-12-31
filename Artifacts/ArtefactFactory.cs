@@ -13,8 +13,9 @@ namespace ProjetDelta.Artifacts
             var desc = dto.Description;
             var v1 = dto.Valeur ?? 0;
             var v2 = dto.Valeur2 ?? 0;
+            var color = ResolveColor(dto);
 
-            return type switch
+            var artefact = type switch
             {
                 "poison" => BuildPoison(nom, desc, (int)v1),
                 "heal_on_attack" or "soin_attaque" => BuildSoinSurAttaque(nom, desc, (int)v1),
@@ -74,6 +75,8 @@ namespace ProjetDelta.Artifacts
                 "stat_custom" => BuildStatCustom(nom, desc, dto),
                 _ => BuildAutre(nom, desc)
             };
+
+            return ApplyColor(artefact, color);
         }
 
         private static IArtefact BuildPoison(string nom, string? desc, int bonus)
@@ -228,15 +231,38 @@ namespace ProjetDelta.Artifacts
 
         private static IArtefact BuildSpeedPct(string nom, string? desc, float pct)
         {
-            return new ArtefactBuilder()
+            // Cas special "Cape du vent" : calcul lineaire sur le nombre de capes possedees (ex: 17 capes = 170% SPD)
+            bool isCapeVent = nom.Equals("Cape du vent", StringComparison.OrdinalIgnoreCase) || nom.Equals("cape_vent", StringComparison.OrdinalIgnoreCase);
+            var builder = new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,0)}% vitesse (SPD)")
-                .OnCombatStart(bearer =>
+                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,0)}% vitesse (SPD)");
+
+            if (isCapeVent)
+            {
+                builder.OnEquip(bearer =>
+                {
+                    // N'ajouter le hook qu'une seule fois
+                    if (bearer.Artefacts.Any(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase))) return;
+                    bearer.OnCombatStart += () =>
+                    {
+                        int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (count <= 0) return;
+                        float totalPct = pct * count;
+                        bearer.AddSpeedBonus(0, totalPct);
+                        bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) augmente la vitesse de +{MathF.Round(totalPct*100,0)}% (x{count})", 0, false);
+                    };
+                });
+            }
+            else
+            {
+                builder.OnCombatStart(bearer =>
                 {
                     bearer.AddSpeedBonus(0, pct);
                     bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) augmente la vitesse de +{MathF.Round(pct*100,0)}%", 0, false);
-                })
-                .Build();
+                });
+            }
+
+            return builder.Build();
         }
 
         private static IArtefact BuildDamageMultiplier(string nom, string? desc, float pct)
@@ -261,6 +287,7 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bool first = true;
+                    bearer.OnCombatStart += () => first = true;
                     bearer.OnAttack += (Combattant cible, ref float degats) =>
                     {
                         if (!first) return;
@@ -362,7 +389,8 @@ namespace ProjetDelta.Artifacts
                 .OnDamageTaken((Combattant bearer, ref float degats) =>
                 {
                     var rnd = new Random();
-                    if (rnd.NextDouble() < pct)
+                    var chance = MathF.Min(1f, MathF.Max(0f, pct * Combattant.GlobalDodgeMultiplier));
+                    if (rnd.NextDouble() < chance)
                     {
                         degats = 0;
                         bearer.LogArtefact(nom, $"{nom} permet d'esquiver le coup !", 0, false);
@@ -541,22 +569,31 @@ namespace ProjetDelta.Artifacts
                 .AvecDescription(desc ?? "Octroie une attaque supplementaire par tour.")
                 .OnEquip(bearer =>
                 {
-                    // Hook sur OnTurnStart pour déclencher une seconde attaque automatique sur la même cible qu'au tour
-                    bearer.OnTurnStart += () =>
+                    bool bonusReady = false;
+
+                    // On remplit le "chargeur" a chaque debut de tour
+                    bearer.OnTurnStart += () => bonusReady = true;
+
+                    bearer.OnAttack += (Combattant cible, ref float degats) =>
                     {
-                        // Marquer qu'une attaque bonus sera déclenchée à la fin de l'attaque normale
-                        AttackHandler? handler = null;
-                        handler = (Combattant cible, ref float degats) =>
+                        if (!bonusReady) return;
+                        if (cible == null) return;
+                        bonusReady = false;
+
+                        // Declencher l'attaque bonus juste apres l'application des degats de l'attaque courante
+                        Action<float, Combattant?>? afterDamage = null;
+                        afterDamage = (float dmg, Combattant? attaquant) =>
                         {
-                            // Désinscrire immédiatement pour éviter les boucles
-                            bearer.OnAttack -= handler;
-                            // si la cible n'est plus vivante, rien
-                            if (cible == null || !cible.EstVivant()) return;
-                            // lancer une attaque supplémentaire avec dégâts de base (sans multiplicateur)
-                            bearer.Attaquer(cible, 1f);
-                            bearer.LogArtefact(nom, $"{nom} permet une attaque supplementaire sur {cible.Nom}", 0, false);
+                            cible.OnTakeDamage -= afterDamage;
+                            if (!bearer.EstVivant()) return;
+
+                            var bonusTarget = cible.EstVivant() ? cible : (bearer.CurrentTarget ?? cible);
+                            if (bonusTarget == null || !bonusTarget.EstVivant()) return;
+
+                            bearer.Attaquer(bonusTarget, 1f);
+                            bearer.LogArtefact(nom, $"{nom} permet une attaque supplementaire sur {bonusTarget.Nom}", 0, false);
                         };
-                        bearer.OnAttack += handler;
+                        cible.OnTakeDamage += afterDamage;
                     };
                 })
                 .Build();
@@ -600,7 +637,8 @@ namespace ProjetDelta.Artifacts
                     {
                         if (bearer.PV <= bearer.PVMax * 0.3f)
                         {
-                            if (new Random().NextDouble() < pct)
+                            var chance = MathF.Min(1f, MathF.Max(0f, pct * Combattant.GlobalDodgeMultiplier));
+                            if (new Random().NextDouble() < chance)
                             {
                                 degats = 0;
                                 bearer.LogArtefact(nom, $"{nom} permet d'esquiver le coup !", 0, false);
@@ -702,7 +740,9 @@ namespace ProjetDelta.Artifacts
                     bearer.OnBurnApplied += (amount, source) =>
                     {
                         if (source == null || source == bearer) return;
-                        // eviter boucle si l'autre a le meme artefact : le reflect ne reagit pas aux brulures provenant d'un reflect
+                        // eviter boucle : ne pas reagir si la source possede aussi cet artefact
+                        bool sourceHasSame = source.Artefacts.Any(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (sourceHasSame) return;
                         var reflected = amount * r;
                         if (reflected > 0 && source != null)
                         {
@@ -818,24 +858,47 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bool used = false;
+                    Combattant? lastAttacker = null;
+
                     bearer.OnTakeDamage += (degatsRecus, attaquant) =>
                     {
-                        if (used) return;
-                        if (bearer.PV > 0) return;
-                        used = true;
-                        // Remonter a 1 PV
-                        bearer.SubirDegatsSansEffets(bearer.PV - 1); // set PV = 1
-                        bearer.LogArtefact(nom, $"{nom} te sauve : tu restes a 1 PV et contre-attaques !", 0, true);
-                        // Attaquer l'adversaire 2 fois si vivant
-                        if (attaquant != null && attaquant.EstVivant())
-                        {
-                            bearer.Attaquer(attaquant);
-                            if (attaquant.EstVivant())
-                                bearer.Attaquer(attaquant);
-                        }
-                        // Detruire l'artefact (le retirer de la liste)
-                        bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (attaquant != null) lastAttacker = attaquant;
                     };
+
+                    DamageTakenHandler? handler = null;
+                    handler = (ref float degats) =>
+                    {
+                        if (used) return;
+                        // Anticiper la mort : si le degat ferait tomber a 0 ou moins
+                        if (bearer.PV - degats > 0) return;
+                        used = true;
+                        // Annule le degat fatal
+                        degats = 0;
+                        // Remonter a 1 PV
+                        if (bearer.PV > 1)
+                        {
+                            bearer.SubirDegatsSansEffets(bearer.PV - 1);
+                        }
+                        else if (bearer.PV <= 0)
+                        {
+                            bearer.SubirDegatsSansEffets(bearer.PV - 1); // fixe PV=1 meme si negatif
+                        }
+                        bearer.LogArtefact(nom, $"{nom} te sauve : tu restes a 1 PV et contre-attaques !", 0, true);
+
+                        var cible = lastAttacker ?? bearer.CurrentTarget;
+                        if (cible != null && cible.EstVivant())
+                        {
+                            bearer.Attaquer(cible);
+                            if (cible.EstVivant())
+                                bearer.Attaquer(cible);
+                        }
+
+                        // Detruire l'artefact et detacher le handler
+                        bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        bearer.OnDamageTaken -= handler!;
+                    };
+
+                    bearer.OnDamageTaken += handler;
                 })
                 .Build();
         }
@@ -849,8 +912,10 @@ namespace ProjetDelta.Artifacts
                 {
                     // Hook sur OnEquip pour surveiller le prochain artefact
                     Action? handler = null;
+                    bool used = false;
                     handler = () =>
                     {
+                        if (used) return;
                         if (bearer.Artefacts.Count == 0) return;
                         var last = bearer.Artefacts.Last();
                         // Si l'artefact qui vient d'etre ajoute est ce cloneur, ignorer
@@ -862,6 +927,10 @@ namespace ProjetDelta.Artifacts
                             string.Equals(d.Id, last.Nom, StringComparison.OrdinalIgnoreCase));
                         var isEpic = dto != null && dto.Rarity != null && dto.Rarity.Equals("epic", StringComparison.OrdinalIgnoreCase);
                         if (!isEpic) return;
+
+                        used = true;
+                        // Desabonner pour eviter toute reentrance pendant les equips suivants
+                        bearer.OnEquip -= handler!;
 
                         // Dupliquer 2 fois
                         var cloneDtoId = dto.Id ?? dto.Nom ?? "";
@@ -880,8 +949,6 @@ namespace ProjetDelta.Artifacts
 
                         // Retirer le cloneur
                         bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
-                        // Desabonner pour eviter reentrance
-                        bearer.OnEquip -= handler;
                     };
                     bearer.OnEquip += handler;
                 })
@@ -896,20 +963,30 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     Action? handler = null;
+                    bool used = false;
                     handler = () =>
                     {
+                        if (used) return;
                         if (bearer.Artefacts.Count == 0) return;
                         var last = bearer.Artefacts.Last();
                         if (last.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) return;
 
                         var dto = ArtefactLoader.GetDtos().FirstOrDefault(d =>
-                            (d.Id ?? d.Nom ?? "").Equals(last.Nom, StringComparison.OrdinalIgnoreCase));
+                            string.Equals(d.Nom, last.Nom, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(d.Id, last.Nom, StringComparison.OrdinalIgnoreCase));
                         if (dto == null || !string.Equals(dto.Rarity, "rare", StringComparison.OrdinalIgnoreCase))
                             return;
 
+                        used = true;
+                        bearer.OnEquip -= handler!;
+
+                        // se detruire d'abord pour eviter des boucles/eventuels empilements
+                        bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+
                         // cloner deux fois
-                        var clone1 = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
-                        var clone2 = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
+                        var targetId = dto.Id ?? dto.Nom ?? "";
+                        var clone1 = ArtefactLoader.CreerInstance(targetId);
+                        var clone2 = ArtefactLoader.CreerInstance(targetId);
                         if (clone1 != null)
                         {
                             bearer.EquipArtefact(clone1);
@@ -920,10 +997,6 @@ namespace ProjetDelta.Artifacts
                             bearer.EquipArtefact(clone2);
                             bearer.LogArtefact(nom, $"{nom} duplique {clone2.Nom} une seconde fois", 0, false);
                         }
-
-                        // se detruire
-                        bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
-                        bearer.OnEquip -= handler;
                     };
                     bearer.OnEquip += handler;
                 })
@@ -938,8 +1011,10 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     Action? handler = null;
+                    bool used = false;
                     handler = () =>
                     {
+                        if (used) return;
                         var target = bearer.Artefacts.FirstOrDefault(a =>
                             !a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase) &&
                             ArtefactLoader.GetDtos().Any(d =>
@@ -950,6 +1025,9 @@ namespace ProjetDelta.Artifacts
                         var dto = ArtefactLoader.GetDtos().FirstOrDefault(d =>
                             (d.Id ?? d.Nom ?? "").Equals(target.Nom, StringComparison.OrdinalIgnoreCase));
                         if (dto == null) return;
+
+                        used = true;
+                        bearer.OnEquip -= handler!;
 
                         var clone1 = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
                         var clone2 = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
@@ -965,7 +1043,6 @@ namespace ProjetDelta.Artifacts
                         }
 
                         bearer.Artefacts.RemoveAll(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
-                        bearer.OnEquip -= handler;
                     };
                     // tenter immediatement
                     handler();
@@ -1004,7 +1081,8 @@ namespace ProjetDelta.Artifacts
                     float chance = MathF.Min(0.75f, (bearer.Dexterite / 50f) * 0.01f);
                     if (chance <= 0) return;
                     var rnd = new Random();
-                    if (rnd.NextDouble() < chance)
+                    var chanceEff = MathF.Min(1f, MathF.Max(0f, chance * Combattant.GlobalDodgeMultiplier));
+                    if (rnd.NextDouble() < chanceEff)
                     {
                         degats = 0;
                         bearer.LogArtefact(nom, $"{nom} te fait disparaitre dans l'ombre : attaque esquivee", 0, false);
@@ -1197,7 +1275,14 @@ namespace ProjetDelta.Artifacts
                         if (art != null)
                         {
                             j.EquipArtefact(art);
+                            var rarity = dto.Rarity ?? "common";
+                            var color = rarity.Equals("epic", StringComparison.OrdinalIgnoreCase) ? "magenta"
+                                        : rarity.Equals("rare", StringComparison.OrdinalIgnoreCase) ? "blue"
+                                        : rarity.Equals("special", StringComparison.OrdinalIgnoreCase) ? "cyan"
+                                        : "white";
                             j.LogArtefact(nom, $"{nom} depouille l'ennemi : {art.Nom} obtenu.", 0, false);
+                            // message supplementaire pour le chat
+                            j.LogArtefact(nom, $"[Loot Sword] Artefact commun garanti : {art.Nom}", 0, false);
                         }
                     }
                 })
@@ -1230,43 +1315,49 @@ namespace ProjetDelta.Artifacts
             return new ArtefactBuilder()
                 .AvecNom(nom)
                 .AvecDescription(desc ?? "Double les artefacts communs quand ils entrent dans l'inventaire (copie instantanee).")
-                .OnEquip(bearer =>
-                {
-                    bool handling = false;
-                    bearer.OnEquip += () =>
-                    {
-                        if (handling) return;
-                        handling = true;
+                  .OnEquip(bearer =>
+                  {
+                      bool handling = false;
+                      bearer.OnEquip += () =>
+                      {
+                          if (handling) return;
+                          handling = true;
+                          try
+                          {
 
-                        // sécuriser sur l'artefact le plus récemment ajouté
-                        var recents = bearer.Artefacts.LastOrDefault();
-                        if (recents == null) return;
-                        // ne pas dupliquer le CommonDoubler lui-même
-                        if (recents.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) { handling = false; return; }
+                              // sécuriser sur l'artefact le plus récemment ajouté
+                              var recents = bearer.Artefacts.LastOrDefault();
+                              if (recents == null) return;
+                              // ne pas dupliquer le CommonDoubler lui-même
+                              if (recents.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) return;
 
-                        var dto = ArtefactLoader.GetDtos().FirstOrDefault(d =>
-                            string.Equals(d.Nom, recents.Nom, StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(d.Id, recents.Nom, StringComparison.OrdinalIgnoreCase));
-                        var isCommon = dto == null || string.IsNullOrWhiteSpace(dto.Rarity) || dto.Rarity.Equals("common", StringComparison.OrdinalIgnoreCase);
-                        if (!isCommon) return;
+                              var dto = ArtefactLoader.GetDtos().FirstOrDefault(d =>
+                                  string.Equals(d.Nom, recents.Nom, StringComparison.OrdinalIgnoreCase) ||
+                                  string.Equals(d.Id, recents.Nom, StringComparison.OrdinalIgnoreCase));
+                              var isCommon = dto == null || string.IsNullOrWhiteSpace(dto.Rarity) || dto.Rarity.Equals("common", StringComparison.OrdinalIgnoreCase);
+                              if (!isCommon) return;
 
-                        var clone = ArtefactLoader.CreerInstance(dto?.Id ?? recents.Nom);
-                        if (clone != null && bearer is Joueur j)
-                        {
-                            j.EquipArtefact(clone);
-                            j.LogArtefact(nom, $"{nom} duplique l'artefact commun : {clone.Nom}", 0, false);
-                        }
-                        handling = false;
-                    };
-                })
-                .Build();
-        }
+                              var clone = ArtefactLoader.CreerInstance(dto?.Id ?? recents.Nom);
+                              if (clone != null && bearer is Joueur j)
+                              {
+                                  j.EquipArtefact(clone);
+                                  j.LogArtefact(nom, $"{nom} duplique l'artefact commun : {clone.Nom}", 0, false);
+                              }
+                          }
+                          finally
+                          {
+                              handling = false;
+                          }
+                      };
+                  })
+                  .Build();
+          }
 
         private static IArtefact BuildTreasureOverload(string nom, string? desc)
         {
             return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? "Transforme chaque salle tresor : applique tous les effets (or, soin, artefact, XP). Chaque exemplaire repete le cycle une fois de plus.")
+                .AvecDescription(desc ?? "Ajoute un roll supplémentaire d'or ET d'artefact dans chaque salle tresor.")
                 .OnEquip(bearer =>
                 {
                     bearer.AddTreasureOverload(1);
@@ -1304,6 +1395,54 @@ namespace ProjetDelta.Artifacts
                     bearer.AddAttributeBonus(bonus);
                 })
                 .Build();
+        }
+
+        private static string ResolveColor(ArtefactDto dto)
+        {
+            if (!string.IsNullOrWhiteSpace(dto.Color))
+                return dto.Color.Trim().ToLowerInvariant();
+
+            var type = dto.Type?.Trim().ToLowerInvariant() ?? "";
+
+            if (type.Contains("burn") || type.Contains("pyro") || type.Contains("fire"))
+                return "orange";
+            if (type.Contains("heal") || type.Contains("regen"))
+                return "green";
+            if (type.Contains("poison"))
+                return "lime";
+            if (type.Contains("lifesteal") || type.Contains("vol_de_vie"))
+                return "magenta";
+            if (type.Contains("armor") || type.Contains("armure") || type.Contains("bouclier") || type.Contains("shield"))
+                return "blue";
+            if (type.Contains("ice"))
+                return "blue";
+            if (type.Contains("speed") || type.Contains("vitesse") || type.Contains("hermes"))
+                return "yellow";
+            if (type.Contains("loot") || type.Contains("gold") || type.Contains("luck") || type.Contains("treasure"))
+                return "gold";
+            if (type.Contains("xp"))
+                return "cyan";
+            if (type.Contains("dodge") || type.Contains("esquive") || type.Contains("shadow"))
+                return "teal";
+            if (type.Contains("rage") || type.Contains("dmg") || type.Contains("charge"))
+                return "red";
+            if (type.Contains("stat") || type.Contains("bonus") || type.Contains("force") || type.Contains("dex") || type.Contains("const") || type.Contains("intel"))
+                return "lime";
+            if (type.Contains("clone"))
+                return "purple";
+            if (type.Contains("magic") || type.Contains("aura") || type.Contains("special"))
+                return "cyan";
+
+            return "green";
+        }
+
+        private static IArtefact ApplyColor(IArtefact artefact, string color)
+        {
+            if (artefact is TriggerArtefact trigger)
+            {
+                trigger.SetColor(color);
+            }
+            return artefact;
         }
     }
 }

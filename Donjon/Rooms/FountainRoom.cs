@@ -40,7 +40,7 @@ namespace ProjetDelta.Donjon.Rooms
             ui.Afficher(_description);
             joueur.Heal(joueur.PVMax); // heal complet
             ui.Afficher($"Tu recuperes tous tes PV ({joueur.PV}/{joueur.PVMax}).");
-            ui.QuestionReponse("Appuie sur Entree pour continuer.");
+            ui.GoNext("Appuie sur Entree pour continuer.");
         }
     }
 }

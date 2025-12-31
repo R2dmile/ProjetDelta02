@@ -14,8 +14,56 @@ namespace ProjetDelta.Systemes.UIJeu
         private IUI _ui;
         public UIJeuSendConsole(IUI ui) { _ui = ui; }
         private static string FormatNombre(float value) => value.ToString("0.##");
+        private bool TryLogSegments(CombatDataItem combatData)
+        {
+            if (_ui is not IUILogTarget logTarget)
+                return false;
+
+            List<UILogSegment> segments = new List<UILogSegment>();
+            switch (combatData.Event)
+            {
+                case TypeEvenement.Attaque:
+                    segments.Add(new UILogSegment("\n", "white"));
+                    segments.Add(new UILogSegment(combatData.NomAttaquant, combatData.CouleurAtt));
+                    segments.Add(new UILogSegment(" attaque pour ", "white"));
+                    segments.Add(new UILogSegment(FormatNombre(combatData.DegatInflige), combatData.Type));
+                    segments.Add(new UILogSegment(" degats a ", "white"));
+                    segments.Add(new UILogSegment(combatData.NomRecevant, combatData.CouleurDef));
+                    break;
+                case TypeEvenement.Degats:
+                    segments.Add(new UILogSegment("\n", "white"));
+                    segments.Add(new UILogSegment(combatData.NomRecevant, combatData.CouleurDef));
+                    segments.Add(new UILogSegment(" a recu ", "white"));
+                    segments.Add(new UILogSegment(FormatNombre(combatData.DegatSubi), "red"));
+                    segments.Add(new UILogSegment(" degats. PV restants:", "white"));
+                    segments.Add(new UILogSegment($"{combatData.HpCourant}/{combatData.HpTotal}", "white"));
+                    break;
+                case TypeEvenement.Artefact:
+                    var artifactColor = string.IsNullOrWhiteSpace(combatData.Type) ? "green" : combatData.Type;
+                    segments.Add(new UILogSegment("\n", "white"));
+                    segments.Add(new UILogSegment(combatData.NomAttaquant, artifactColor, Artefact: combatData.NomAttaquant, Owner: combatData.NomRecevant));
+                    segments.Add(new UILogSegment(":", "white"));
+                    segments.Add(new UILogSegment(combatData.Message ?? combatData.NomRecevant, artifactColor, Artefact: combatData.NomAttaquant, Owner: combatData.NomRecevant));
+                    if (!string.IsNullOrWhiteSpace(combatData.HpCourant) && !string.IsNullOrWhiteSpace(combatData.HpTotal))
+                    {
+                        segments.Add(new UILogSegment($" ({combatData.HpCourant}/{combatData.HpTotal}) pv", artifactColor));
+                    }
+                    break;
+                case TypeEvenement.Autre:
+                    segments.Add(new UILogSegment("\n", "white"));
+                    segments.Add(new UILogSegment(combatData.Message ?? "", "yellow"));
+                    break;
+                default:
+                    return false;
+            }
+
+            logTarget.AddLogLine(segments);
+            return true;
+        }
         public void AfficherCombatItem(CombatDataItem combatData)
         {
+            if (TryLogSegments(combatData)) return;
+
             if (combatData.Event == TypeEvenement.Attaque)
             {
                 _ui.AffichageBasicInteractif("\n", "white");
@@ -38,13 +86,14 @@ namespace ProjetDelta.Systemes.UIJeu
             }
             else if (combatData.Event == TypeEvenement.Artefact)
             {
+                var artifactColor = string.IsNullOrWhiteSpace(combatData.Type) ? "green" : combatData.Type;
                 _ui.AffichageBasicInteractif("\n", "white");
-                _ui.AffichageBasicInteractif($"{combatData.NomAttaquant}", "green");
+                _ui.AffichageBasicInteractif($"{combatData.NomAttaquant}", artifactColor);
                 _ui.AffichageBasicInteractif(":", "white");
-                _ui.AffichageBasicInteractif($"{combatData.Message ?? combatData.NomRecevant}", "white");
+                _ui.AffichageBasicInteractif($"{combatData.Message ?? combatData.NomRecevant}", artifactColor);
                 if (!string.IsNullOrWhiteSpace(combatData.HpCourant) && !string.IsNullOrWhiteSpace(combatData.HpTotal))
                 {
-                    _ui.AffichageBasicInteractif($" ({combatData.HpCourant}/{combatData.HpTotal}) pv", "white");
+                    _ui.AffichageBasicInteractif($" ({combatData.HpCourant}/{combatData.HpTotal}) pv", artifactColor);
                 }
                 _ui.TerminerLigne();
             }

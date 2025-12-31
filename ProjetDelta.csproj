@@ -1,25 +1,41 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\DataStorage\rooms\" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
 
-  <!-- Inclure les données (json) dans la publication -->
+  <!-- Données embarquées pour le single-file : toutes les JSON sauf sauvegardes/meta -->
   <ItemGroup>
-    <None Include="Data\DataStorage\**\*.*" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Data\DataStorage\**\*.json" Exclude="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
   </ItemGroup>
 
   <!-- Ne pas embarquer les sauvegardes/meta actuelles dans le publish -->
   <ItemGroup>
-    <None Remove="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
     <Content Remove="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
+    <None Remove="Data\DataStorage\players.json;Data\DataStorage\profile.json;Data\DataStorage\finalboss.json" />
+  </ItemGroup>
+
+  <!-- Exclure les fichiers du projet BlazorHybrid du build du jeu principal -->
+  <ItemGroup>
+    <Compile Remove="ProjetDelta.BlazorHybrid\**\*.cs" />
+    <EmbeddedResource Remove="ProjetDelta.BlazorHybrid\**\*.*" />
+    <None Remove="ProjetDelta.BlazorHybrid\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ProjetDelta.Core\ProjetDelta.Core.csproj" />
   </ItemGroup>
 
 </Project>

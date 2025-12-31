@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:ProjetDelta.BlazorHybrid.Components"
+             x:Class="ProjetDelta.BlazorHybrid.MainPage">
+
+    <Grid>
+        <BlazorWebView x:Name="blazorWebView"
+                       HostPage="wwwroot/index.html"
+                       BlazorWebViewInitializing="OnWebViewInitializing"
+                       BlazorWebViewInitialized="OnWebViewInitialized">
+            <BlazorWebView.RootComponents>
+                <RootComponent Selector="#app" ComponentType="{x:Type components:Routes}" />
+            </BlazorWebView.RootComponents>
+        </BlazorWebView>
+
+        <Grid x:Name="LoadingOverlay"
+              BackgroundColor="#0f172a"
+              Opacity="0.92"
+              IsVisible="True">
+            <VerticalStackLayout x:Name="LoadingContent" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                <ActivityIndicator IsRunning="True" Color="#38bdf8" WidthRequest="36" HeightRequest="36"/>
+                <Label Text="Chargement de l'UI MAUI..."
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"/>
+                <Label x:Name="WebViewInfoLabel"
+                       Text=""
+                       TextColor="#cbd5e1"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"/>
+                <Label Text="Si l'ecran reste blanc, verifie WebView2 ou reessaie."
+                       TextColor="White"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+
+</ContentPage>

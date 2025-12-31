@@ -1,0 +1,281 @@
+@page "/"
+@using ProjetDelta.UI
+@inject ProjetDelta.BlazorHybrid.Services.UIStateService State
+@inject ProjetDelta.BlazorHybrid.Services.GameRunner Runner
+@inject IJSRuntime JS
+
+<PageTitle>Artefact</PageTitle>
+
+<div class="page-shell" style="@GetBackgroundStyle()">
+    <h1>Artefact</h1>
+
+    @if (State.IsLoading)
+    {
+        <div class="loading-overlay">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <p>Chargement du moteur...</p>
+            </div>
+        </div>
+    }
+
+    @if (State.CommandsAvailable)
+    {
+        <div class="tab-bar">
+            <button class="@GetTabClass(TabLog)" @onclick="() => SwitchTab(TabLog)">Log</button>
+            <button class="@GetTabClass(TabInventory)" @onclick="() => SwitchTab(TabInventory)">Inventaire</button>
+            <button class="@GetTabClass(TabStats)" @onclick="() => SwitchTab(TabStats)">Stats</button>
+        </div>
+    }
+
+    @if (selectedTab == "inventory" && State.Player is not null)
+    {
+        <div class="panel">
+            <h3>Inventaire</h3>
+            @if (State.Player.Artefacts.Any())
+            {
+                <ul class="artefact-list">
+                    @foreach (var art in State.Player.Artefacts)
+                    {
+                        <li>
+                            <button class="artefact-link" style="@GetArtefactStyle(art)" @onclick="@(()=>SelectArtefact(art))">@art.Nom</button>
+                            <span class="badge" style="@GetRarityStyle(art.Rarity)">@art.Rarity</span>
+                        </li>
+                    }
+                </ul>
+                @if (selectedArtefact is not null)
+                {
+                    <div class="artefact-card">
+                        <h4 style="@GetArtefactStyle(selectedArtefact)">@selectedArtefact.Nom</h4>
+                        <p class="text-muted">@selectedArtefact.Rarity</p>
+                        <p>@(string.IsNullOrWhiteSpace(selectedArtefact.Description) ? "Pas de description." : selectedArtefact.Description)</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Aucun artefact equipe.</p>
+            }
+        </div>
+    }
+    else if (selectedTab == "stats" && State.Player is not null)
+    {
+        var p = State.Player;
+        <div class="panel">
+            <h3>Statistiques</h3>
+            <p><strong>@p.Nom</strong> - @p.Classe (@p.Background) | Niveau @p.Niveau</p>
+            <p>Etage: @p.Etage | Difficulté actuelle: @p.Difficulte</p>
+            <p>PV: @p.PvCourant/@p.PvMax | ATK: @p.Attaque | VIT: @p.Vitesse | Or: @p.Argent</p>
+        </div>
+    }
+    else
+    {
+        <h3>Messages</h3>
+        <ul class="log-lines" id="log-container">
+            @foreach (var line in State.Messages)
+            {
+                <li>
+                    @foreach (var seg in line.Segments)
+                    {
+                        if (!string.IsNullOrEmpty(seg.Artefact))
+                        {
+                            <button class="log-link" style="@GetSegmentStyle(seg)" @onclick="@(()=>ShowLogArtefact(seg))">
+                                @(!string.IsNullOrEmpty(seg.Text) ? seg.Text : " ")
+                            </button>
+                        }
+                        else
+                        {
+                            <span style="@GetSegmentStyle(seg)">@(!string.IsNullOrEmpty(seg.Text) ? seg.Text : " ")</span>
+                        }
+                    }
+                </li>
+            }
+        </ul>
+    }
+
+    <h3>Interaction</h3>
+    @if (!string.IsNullOrWhiteSpace(State.Prompt))
+    {
+        <p><strong>@State.Prompt</strong></p>
+    }
+
+    @if (State.AwaitingText)
+    {
+        <div class="mb-2" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <input @bind="textAnswer" placeholder="Votre reponse" />
+            <button class="btn btn-primary btn-sm" @onclick="SubmitText">Valider</button>
+            @if (State.BackEnabled)
+            {
+                <button class="btn btn-outline-secondary btn-sm" @onclick="SubmitBack">@State.BackLabel</button>
+            }
+        </div>
+    }
+    else if (State.AwaitingNext)
+    {
+        <button class="btn btn-warning btn-sm" @onclick="GoNext">@State.NextLabel</button>
+    }
+    else if (State.Options.Any())
+    {
+        <div class="btn-group-vertical">
+            @foreach (var opt in State.Options)
+            {
+                <button class="btn btn-sm @(opt.Disabled ? "btn-secondary" : "btn-success")"
+                        disabled="@opt.Disabled"
+                        @onclick="@(()=>Select(opt.Key))">
+                    @opt.Key : @opt.Label
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Aucune option en attente.</p>
+    }
+</div>
+
+@code {
+    private string textAnswer = string.Empty;
+    private bool started;
+    private bool pendingScroll;
+    private const string LogElementId = "log-container";
+    private string selectedTab = TabLog;
+    private UIArtefact? selectedArtefact;
+    private const string TabLog = "log";
+    private const string TabInventory = "inventory";
+    private const string TabStats = "stats";
+
+    protected override void OnInitialized()
+    {
+        State.Messages.CollectionChanged += (_, __) =>
+        {
+            pendingScroll = true;
+            InvokeAsync(StateHasChanged);
+        };
+        State.Options.CollectionChanged += (_, __) => InvokeAsync(StateHasChanged);
+        State.Changed += () => InvokeAsync(StateHasChanged);
+        StartGame();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (pendingScroll)
+        {
+            pendingScroll = false;
+            await JS.InvokeVoidAsync("projetDeltaScrollLog", LogElementId);
+        }
+    }
+
+    private void Select(string key) => State.CompleteChoice(key);
+
+    private void SubmitText()
+    {
+        State.SubmitText(textAnswer);
+        textAnswer = string.Empty;
+    }
+
+    private void GoNext() => State.CompleteNext();
+    private void SubmitBack()
+    {
+        State.SubmitText("back");
+        textAnswer = string.Empty;
+    }
+
+    private void StartGame()
+    {
+        if (started) return;
+        started = true;
+        Runner.EnsureStarted(State);
+    }
+
+    private void SwitchTab(string tab)
+    {
+        selectedTab = tab;
+        StateHasChanged();
+    }
+
+    private void SelectArtefact(UIArtefact art)
+    {
+        selectedArtefact = art;
+        StateHasChanged();
+    }
+
+    private void ShowLogArtefact(ProjetDelta.BlazorHybrid.Services.UIStateService.MessageSegment seg)
+    {
+        if (string.IsNullOrWhiteSpace(seg.Artefact))
+            return;
+        var playerArt = State.Player?.Artefacts.FirstOrDefault(a => a.Nom.Equals(seg.Artefact, StringComparison.OrdinalIgnoreCase));
+        if (playerArt != null)
+        {
+            selectedArtefact = playerArt;
+            selectedTab = TabInventory;
+        }
+        else
+        {
+            selectedArtefact = new UIArtefact(seg.Artefact, $"Porteur: {seg.Owner ?? "inconnu"}", "inconnu", seg.Color ?? "white");
+            selectedTab = TabInventory;
+        }
+        StateHasChanged();
+    }
+
+    private string GetSegmentStyle(ProjetDelta.BlazorHybrid.Services.UIStateService.MessageSegment segment)
+    {
+        var color = ResolveColorHex(segment.Color);
+        return $"color:{color}; white-space:pre-wrap;";
+    }
+
+    private string GetArtefactStyle(UIArtefact art)
+    {
+        var color = ResolveColorHex(art.Color);
+        return $"color:{color};";
+    }
+
+    private string ResolveColorHex(string? rawColor)
+    {
+        var raw = rawColor?.ToLowerInvariant() ?? "white";
+        return raw switch
+        {
+            "red" => "#ef4444",
+            "green" => "#22c55e",
+            "yellow" => "#d97706",
+            "gray" or "grey" => "#6b7280",
+            "white" => "#cbd5e1",
+            "cyan" or "teal" or "special" => "#0ea5e9",
+            "blue" => "#1d4ed8",
+            "magenta" or "purple" or "darkmagenta" => "#a855f7",
+            "lime" => "#65a30d",
+            "gold" or "darkyellow" => "#d97706",
+            _ => "#334155"
+        };
+    }
+
+    private string GetRarityStyle(string rarity)
+    {
+        var raw = rarity?.ToLowerInvariant() ?? "common";
+        var color = raw switch
+        {
+            "epic" => "#c084fc",
+            "rare" => "#60a5fa",
+            "special" => "#22d3ee",
+            "uncommon" => "#86efac",
+            _ => "#475569"
+        };
+        return $"background-color: {color}33; color:{color}; border:1px solid {color}55;";
+    }
+
+    private string GetBackgroundStyle()
+    {
+        var floor = State.Player?.Etage ?? 1;
+        var bg = floor switch
+        {
+            <= 1 => "#f8fafc",
+            2 => "#e5e7eb",
+            3 => "#f3e8ff",
+            4 => "#fed7aa",
+            _ => "#0f172a"
+        };
+        var fg = floor >= 5 ? "#e2e8f0" : "#0b1120";
+        return $"background:{bg}; color:{fg}; min-height:100vh; padding:1rem;";
+    }
+
+    private string GetTabClass(string tab) => $"tab-btn {(selectedTab == tab ? "active" : "")}";
+}

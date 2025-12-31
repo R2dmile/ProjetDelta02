@@ -17,6 +17,10 @@ namespace ProjetDelta.Logger
             _logs = logs;
         }
 
+        public CombatDataItem? LastItem => _logs.Count > 0 ? _logs[^1] : null;
+        public CombatDataItem? LastAction =>
+            _logs.LastOrDefault(l => l.Event != TypeEvenement.Autre);
+
         public void Log(CombatDataItem item)
         {
             _logs.Add(item);

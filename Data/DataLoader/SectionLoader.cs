@@ -7,10 +7,9 @@ namespace ProjetDelta.Data.DataLoader.ProjetDelta.Narration
     {
         public static List<Section> ChargerSections()
         {
-            string filePath = Path.Combine("..", "..", "..", "Data", "DataStorage", "sections3.json");
             try
             {
-                string json = File.ReadAllText(filePath);
+                string json = DataFileHelper.ReadText("Data/DataStorage/sections3.json");
                 var sectionsData = JsonSerializer.Deserialize<Section.SectionsData>(json);
                 return sectionsData?.Sections ?? new List<Section>();
             }

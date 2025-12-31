@@ -12,7 +12,7 @@ namespace ProjetDelta.Data.DataLoader
 
         private static List<ArtefactDto> ChargerDtos(string path)
         {
-            var json = File.ReadAllText(path);
+            var json = DataFileHelper.ReadText(path);
             return JsonSerializer.Deserialize<List<ArtefactDto>>(json) ?? new List<ArtefactDto>();
         }
 
@@ -21,20 +21,8 @@ namespace ProjetDelta.Data.DataLoader
             if (_cacheDtos != null && string.Equals(_cachePath, relativePath, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            var baseDir = AppContext.BaseDirectory;
-            var candidates = new[]
-            {
-                Path.Combine(baseDir, relativePath),
-                Path.Combine(baseDir, "..", "..", "..", relativePath), // remonter au repo depuis bin
-                Path.Combine(Directory.GetCurrentDirectory(), relativePath)
-            }.Select(p => Path.GetFullPath(p)).ToList();
-
-            var fullPath = candidates.FirstOrDefault(File.Exists);
-            if (fullPath == null)
-                throw new FileNotFoundException($"Fichier d'artefacts introuvable. Cherche: {string.Join("; ", candidates)}");
-
             _cachePath = relativePath;
-            _cacheDtos = ChargerDtos(fullPath);
+            _cacheDtos = ChargerDtos(relativePath);
             _cacheById = _cacheDtos
                 .Where(d => !string.IsNullOrWhiteSpace(d.Id))
                 .ToDictionary(d => d.Id, d => d, StringComparer.OrdinalIgnoreCase);

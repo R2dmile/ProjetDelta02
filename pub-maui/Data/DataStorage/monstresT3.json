@@ -1,0 +1,165 @@
+﻿{
+  "monstres": [
+    {
+      "nom": "ogre brutal",
+      "couleur": "vert boueux",
+      "attributs": {
+        "intel": 5,
+        "force": 22,
+        "constitution": 18,
+        "dex": 6,
+        "darkness": 4
+      },
+      "stats": {
+        "vie": 72,
+        "attaque": 10,
+        "vitesse": 7
+      }
+    },
+    {
+      "nom": "spectre vengeur",
+      "couleur": "noir éthéré",
+      "attributs": {
+        "intel": 12,
+        "force": 10,
+        "constitution": 16,
+        "dex": 14,
+        "darkness": 8
+      },
+      "stats": {
+        "vie": 62,
+        "attaque": 9,
+        "vitesse": 12
+      }
+    },
+    {
+      "nom": "basilic pétrifiant",
+      "couleur": "écailleux brun",
+      "attributs": {
+        "intel": 2,
+        "force": 15,
+        "constitution": 17,
+        "dex": 7,
+        "darkness": 5
+      },
+      "stats": {
+        "vie": 68,
+        "attaque": 9,
+        "vitesse": 8
+      }
+    },
+    {
+      "nom": "cyclope borgne",
+      "couleur": "peau grise",
+      "attributs": {
+        "intel": 4,
+        "force": 24,
+        "constitution": 20,
+        "dex": 5,
+        "darkness": 3
+      },
+      "stats": {
+        "vie": 78,
+        "attaque": 11,
+        "vitesse": 6
+      }
+    },
+    {
+      "nom": "prêtre squelette maudit",
+      "couleur": "blanc et noir",
+      "attributs": {
+        "intel": 16,
+        "force": 8,
+        "constitution": 14,
+        "dex": 9,
+        "darkness": 7
+      },
+      "stats": {
+        "vie": 58,
+        "attaque": 9,
+        "vitesse": 7
+      }
+    },
+    {
+      "nom": "manticore ailée",
+      "couleur": "brun sable et rouge",
+      "attributs": {
+        "intel": 9,
+        "force": 17,
+        "constitution": 15,
+        "dex": 16,
+        "darkness": 5
+      },
+      "stats": {
+        "vie": 66,
+        "attaque": 10,
+        "vitesse": 16
+      }
+    },
+    {
+      "nom": "géant des collines",
+      "couleur": "peau terreuse",
+      "attributs": {
+        "intel": 3,
+        "force": 26,
+        "constitution": 22,
+        "dex": 4,
+        "darkness": 2
+      },
+      "stats": {
+        "vie": 80,
+        "attaque": 11,
+        "vitesse": 6
+      }
+    },
+    {
+      "nom": "élémentaire d'eau puissant",
+      "couleur": "bleu translucide",
+      "attributs": {
+        "intel": 6,
+        "force": 14,
+        "constitution": 19,
+        "dex": 12,
+        "darkness": 6
+      },
+      "stats": {
+        "vie": 74,
+        "attaque": 10,
+        "vitesse": 10
+      }
+    },
+    {
+      "nom": "sphinx énigmatique",
+      "couleur": "beige et or",
+      "attributs": {
+        "intel": 18,
+        "force": 15,
+        "constitution": 16,
+        "dex": 10,
+        "darkness": 7
+      },
+      "stats": {
+        "vie": 64,
+        "attaque": 9,
+        "vitesse": 9
+      }
+    },
+    {
+      "nom": "chevalier noir spectral",
+      "couleur": "armure noire hantée",
+      "attributs": {
+        "intel": 10,
+        "force": 20,
+        "constitution": 17,
+        "dex": 13,
+        "darkness": 8
+      },
+      "stats": {
+        "vie": 76,
+        "attaque": 11,
+        "vitesse": 11
+      }
+    }
+  ]
+}
+  

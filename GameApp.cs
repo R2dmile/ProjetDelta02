@@ -13,6 +13,7 @@ using ProjetDelta.Systemes.events;
 using ProjetDelta.Artifacts;
 using ProjetDelta.Systemes;
 using System.Linq;
+using System.Threading;
 
 public class GameApp
 {
@@ -118,22 +119,30 @@ public class GameApp
                              .ToJoueur(),
                     _ => throw new Exception("Option invalide")
                 };
-                if (choix == "1")
+                if (choix == "1" && joueur == null)
                 {
-                    difficulteChoisie = ChoisirDifficulte(profile);
-                    joueur.SetDifficulte(difficulteChoisie);
-                    _ui.Afficher("Creation du personnage...");
-                    PlayerLoadeur.Sauvegarder(joueur);
+                    // Creation annulee -> retour menu
+                    continue;
                 }
+                  if (choix == "1")
+                  {
+                      difficulteChoisie = ChoisirDifficulte(profile);
+                      joueur.SetDifficulte(difficulteChoisie);
+                      ShowQuickProgress("Creation du personnage...");
+                      // S'assurer de nettoyer toute ancienne sauvegarde portant le meme nom (evite de recuperer d'anciens artefacts)
+                      PlayerLoadeur.Supprimer(joueur.Nom);
+                      PlayerLoadeur.Sauvegarder(joueur);
+                  }
             }
 
             joueur.AppliquerMetaBonuses(profile.MetaGoldBonus, profile.MetaLootBonus, profile.MetaStatBonus);
             MonstreBuilder.CurrentDifficulty = DifficultyModifier.FromLevel(joueur.DifficulteLevel);
 
+            ShowQuickProgress("Chargement du personnage...");
 
             _ui.Afficher($"Bonjour, {joueur.Nom}");
             _ui.Afficher("Objectif : franchis les 5 etages et bats le boss final.");
-            _ui.QuestionReponse("Appuie sur Entree pour commencer.");
+            _ui.GoNext("Appuie sur Entree pour commencer.");
             _ui.Afficher($"Salle courante: {(string.IsNullOrWhiteSpace(joueur.RoomName) ? "GoldenVault" : joueur.RoomName)}");
             _ui.Afficher($"PV: {joueur.PV}/{joueur.PVMax}");
             if (joueur.Artefacts.Count > 0)
@@ -144,12 +153,15 @@ public class GameApp
             {
                 _ui.Afficher("Aucun artefact equipe.");
             }
+            PushPlayerState(joueur);
 
             RoomLoader loader = new RoomLoader();
             Dictionary<string, Room> rooms = loader.GetRooms(randomDungeon, joueur.Etage);
 
             // Enregistrer les commandes globales (ex: "artifacts")
-            UIText.SetCommandHook(cmd => CommandHandler.TryHandle(cmd, joueur, _ui));
+            var hook = new Func<string, bool>(cmd => CommandHandler.TryHandle(cmd, joueur, _ui));
+            UIText.SetCommandHook(hook);
+            SpectreUI.SetCommandHook(hook);
 
             // starting point : reprendre la room sauvegardee si elle existe, sinon debut
             string startRoomName = string.IsNullOrWhiteSpace(joueur.RoomName) ? "GoldenVault" : joueur.RoomName;
@@ -192,11 +204,12 @@ public class GameApp
                 try
                 {
                     currentRoom.ResolveRoom(_ui, joueur);
+                    PushPlayerState(joueur);
                     // Pas de pause si c'est une intersection (embranchement)
                     // Ne pas imposer de pause apres un embranchement ou une boutique
                     if (currentRoom is not IntersectionRoom && currentRoom is not ShopRoom)
                     {
-                        _ui.QuestionReponse("Appuie sur Entree pour continuer");
+                        _ui.GoNext("Appuie sur Entree pour continuer");
                     }
                     if (currentRoom is CombatRoom combatRoom && combatRoom.IsBoss && joueur.EstVivant())
                     {
@@ -290,6 +303,7 @@ public class GameApp
 
                         joueur.AvancerEtage();
                         joueur.RoomName = "GoldenVault";
+                        ShowQuickProgress($"Passage a l'etage {joueur.Etage}");
                         rooms = loader.GetRooms(randomDungeon, joueur.Etage);
                         currentRoom = rooms["GoldenVault"];
                         PlayerLoadeur.Sauvegarder(joueur); // save au debut du nouvel etage
@@ -321,6 +335,63 @@ public class GameApp
         }
     }
 
+    private void ShowQuickProgress(string message)
+    {
+        if (_ui is SpectreUI spectre)
+        {
+            spectre.QuickProgress(message);
+        }
+        else
+        {
+            _ui.Afficher(message + " ...");
+            Thread.Sleep(300);
+        }
+    }
+
+    private UIPlayerState BuildPlayerState(Joueur joueur)
+    {
+        var dtos = ArtefactLoader.GetDtos();
+        var artefacts = joueur.Artefacts.Select(a =>
+        {
+            var dto = dtos.FirstOrDefault(d =>
+                string.Equals(d.Nom, a.Nom, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(d.Id, a.Nom, StringComparison.OrdinalIgnoreCase));
+            var rarity = dto?.Rarity ?? "common";
+            var desc = dto?.Description ?? a.Description ?? "";
+            var color = !string.IsNullOrWhiteSpace(dto?.Color)
+                ? dto!.Color!.Trim().ToLowerInvariant()
+                : (!string.IsNullOrWhiteSpace(a.Color) ? a.Color : "green");
+            return new UIArtefact(a.Nom, desc, rarity, color);
+        }).ToList();
+
+        return new UIPlayerState(
+            joueur.Nom,
+            joueur.BackgroundNom,
+            joueur.ClasseNom,
+            joueur.Niveau,
+            joueur.Etage,
+            joueur.Difficulte,
+            joueur.Argent,
+            joueur.PV,
+            joueur.PVMax,
+            joueur.Attaque,
+            joueur.SPD,
+            artefacts
+        );
+    }
+
+    private void PushPlayerState(Joueur joueur)
+    {
+        try
+        {
+            _ui.UpdatePlayerState(BuildPlayerState(joueur));
+        }
+        catch
+        {
+            // UI non compatible : ignorer
+        }
+    }
+
     private string ChoisirDifficulte(ProfileData profile)
     {
         // Construire les niveaux disponibles (0..10)
@@ -339,7 +410,7 @@ public class GameApp
                 0 => " (ennemis un peu plus faibles)",
                 1 => " (baseline)",
                 2 => " (renforces)",
-                _ => $" ({diff.HpMult:0.00}x stats, {diff.Level} artefacts triang.)"
+                _ => $" ({diff.HpMult:0.00}x stats)"
             };
             options[idx.ToString()] = $"{diff.Nom}{desc}";
             keyToName[idx.ToString()] = diff.Nom;
@@ -351,24 +422,39 @@ public class GameApp
 
     private void AfficherBoutiqueMeta(ProfileData profile)
     {
+        int Count(float current, float step) => step <= 0 ? 0 : (int)MathF.Round(current / step, MidpointRounding.AwayFromZero);
+        int CountInt(int current, int step) => step <= 0 ? 0 : current / step;
+
         while (true)
         {
+            int cLoot = (int)Math.Ceiling(50 * (1 + 0.1f * Count(profile.MetaLootBonus, 0.01f)));
+            int cGold = (int)Math.Ceiling(50 * (1 + 0.1f * Count(profile.MetaGoldBonus, 0.05f)));
+            int cStats = (int)Math.Ceiling(50 * (1 + 0.1f * Count(profile.MetaStatBonus, 0.01f)));
+            int cBg = (int)Math.Ceiling(100 * (1 + 0.1f * CountInt(profile.MetaBackgroundFlatBonus, 1)));
+            int cClasse = (int)Math.Ceiling(100 * (1 + 0.1f * Count(profile.MetaClasseMultBonus, 0.10f)));
+            int cArtefact = (int)Math.Ceiling(75 * (1 + 0.15f * (profile.MetaArtefacts?.Count ?? 0)));
+            int cUi = 100;
+
             _ui.Afficher($"Meta-currency actuelle : {profile.MetaCurrency}");
             var options = new Dictionary<string, string>
         {
-            {"1", $"+1% chance drop artefact permanent (cout 50)"},
-            {"2", $"+5% or permanent (cout 50)"},
-            {"3", $"+1% stats (PV/ATK/VIT) permanent (cout 50)"},
-            {"4", $"+1 aux stats de base des backgrounds (cout 100)"},
-            {"5", $"+10% aux multiplicateurs de classes (cout 100)"},
-            {"6", $"Artefact commun permanent pour nouveaux persos (cout 75)"},
+            {"1", $"+1% chance drop artefact permanent (cout {cLoot})"},
+            {"2", $"+5% or permanent (cout {cGold})"},
+            {"3", $"+1% stats (PV/ATK/VIT) permanent (cout {cStats})"},
+            {"4", $"+1 aux stats de base des backgrounds (cout {cBg})"},
+            {"5", $"+10% aux multiplicateurs de classes (cout {cClasse})"},
+            {"6", $"Artefact commun permanent pour nouveaux persos (cout {cArtefact})"},
             {"0", "Quitter la boutique meta"}
         };
+            if (!profile.MauiUnlocked)
+            {
+                options["7"] = $"Debloquer l'UI MAUI/Blazor (cout {cUi})";
+            }
             var choix = _ui.ChoisirOption("Boutique meta :", options).Item1;
             if (choix == "0") return;
             if (choix == "1")
             {
-                const int cout = 50;
+                int cout = cLoot;
                 if (profile.MetaCurrency < cout)
                 {
                     _ui.Afficher("Pas assez de meta-currency.");
@@ -380,7 +466,7 @@ public class GameApp
             }
             else if (choix == "2")
             {
-                const int cout = 50;
+                int cout = cGold;
                 if (profile.MetaCurrency < cout)
                 {
                     _ui.Afficher("Pas assez de meta-currency.");
@@ -392,7 +478,7 @@ public class GameApp
             }
             else if (choix == "3")
             {
-                const int cout = 50;
+                int cout = cStats;
                 if (profile.MetaCurrency < cout)
                 {
                     _ui.Afficher("Pas assez de meta-currency.");
@@ -404,7 +490,7 @@ public class GameApp
             }
             else if (choix == "4")
             {
-                const int cout = 100;
+                int cout = cBg;
                 if (profile.MetaCurrency < cout)
                 {
                     _ui.Afficher("Pas assez de meta-currency.");
@@ -417,7 +503,7 @@ public class GameApp
             }
             else if (choix == "5")
             {
-                const int cout = 100;
+                int cout = cClasse;
                 if (profile.MetaCurrency < cout)
                 {
                     _ui.Afficher("Pas assez de meta-currency.");
@@ -430,7 +516,7 @@ public class GameApp
             }
             else if (choix == "6")
             {
-                const int cout = 75;
+                int cout = cArtefact;
                 if (profile.HighestDifficultyUnlocked < 2)
                 {
                     _ui.Afficher("Cette amelioration se debloque apres avoir complete le mode Normal.");
@@ -457,9 +543,30 @@ public class GameApp
                 {
                     profile.MetaArtefacts ??= new List<string>();
                     profile.MetaArtefacts.Add(id);
-                    _ui.Afficher($"Achat effectue. Artefact permanent ajoute : {pick.Nom ?? id}");
+                    var nomAff = pick.Nom ?? id;
+                    var descAff = string.IsNullOrWhiteSpace(pick.Description) ? "" : $" | {pick.Description}";
+                    _ui.Afficher($"Achat effectue. Artefact permanent ajoute : {nomAff} (commun){descAff}");
                 }
                 ProfileLoader.Save(profile);
+            }
+            else if (choix == "7")
+            {
+                if (profile.MauiUnlocked)
+                {
+                    _ui.Afficher("UI MAUI/Blazor deja debloquee.");
+                    continue;
+                }
+                int cout = cUi;
+                if (profile.MetaCurrency < cout)
+                {
+                    _ui.Afficher("Pas assez de meta-currency.");
+                    continue;
+                }
+                profile.MetaCurrency -= cout;
+                profile.MauiUnlocked = true;
+                profile.UseBlazorUI = true;
+                ProfileLoader.Save(profile);
+                _ui.Afficher("UI MAUI/Blazor debloquee ! Redemarre le jeu pour voir l'option au lancement.");
             }
             ProfileLoader.Save(profile);
         }
@@ -507,9 +614,10 @@ public class GameApp
         _ui.Afficher($"Tour de test du boss. Niveau maximal debloque : {profile.BossTestLevelUnlocked}. Meilleur niveau atteint : {profile.BossTestBestLevel}.");
         while (true)
         {
-            var input = _ui.QuestionReponse("Entrez un niveau (1..N), 'INFO' pour details du boss, 'BACK' pour quitter :").Trim().ToUpperInvariant();
+            _ui.Afficher($"Niveaux disponibles : 1..{profile.BossTestLevelUnlocked} (meilleur atteint : {profile.BossTestBestLevel}).");
+            var input = _ui.QuestionReponse("Entrez un niveau, 'INFO' pour details du boss, 'BACK' (ou B/BAC/0/Q) pour quitter :").Trim().ToUpperInvariant();
             if (string.IsNullOrWhiteSpace(input)) continue;
-            if (input == "BACK" || input == "B" || input == "0") return;
+            if (input is "BACK" or "B" or "BAC" or "BACKSPACE" or "0" or "Q") return;
             if (input == "INFO")
             {
                 AfficherBossActuel();
@@ -556,11 +664,11 @@ public class GameApp
             var boss = new Joueur(bossData.Nom, bg, cls, bossData.Stats, bossData.Niveau, bossData.Exp, bossData.Argent, bossData.Etage, bossData.Difficulte ?? "Normal", bossData.PointsNonDepenses);
             if (bossData.Artefacts != null)
             {
-                var artefactsDispo = ArtefactLoader.ChargerDepuisJson();
                 foreach (var nom in bossData.Artefacts)
                 {
                     if (string.IsNullOrWhiteSpace(nom)) continue;
-                    if (artefactsDispo.TryGetValue(nom, out var art)) boss.EquipArtefact(art);
+                    var art = ArtefactLoader.CreerInstance(nom);
+                    if (art != null) boss.EquipArtefact(art);
                 }
             }
 

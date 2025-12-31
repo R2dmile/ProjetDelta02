@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ProjetDelta.Systemes;
 
 namespace ProjetDelta.Jeu
 {
@@ -33,6 +34,7 @@ namespace ProjetDelta.Jeu
         public void Demarrer()
         {
             _ui.Afficher("Le combat commence !");
+            CommandHandler.SetOpponentsProvider(() => _monstres.Where(m => m.EstVivant()));
             if (_monstres.Count > 1)
             {
                 _ui.Afficher("Adversaires : " + string.Join(", ", _monstres.Select(m => m.Nom)));
@@ -48,8 +50,15 @@ namespace ProjetDelta.Jeu
             int nbAttaques = 0;
             int tours = 0;
             const int maxTours = 400;
-            const int seuilSuddenDeath = 80;
-            const float incrementSuddenDeath = 0.1f;
+            const int toursParPalier = 10;
+            const float stepPct = 0.10f; // 10% par palier
+            const float stepHard = 0.10f; // malus heals/esquive apres 100 tours
+            int palierDegats = 0;       // montees de degats (toujours actives)
+            int palierHard = 0;         // malus suppl. actives apres 100 tours
+            // Reset des multiplicateurs globaux
+            Combattant.GlobalDamageMultiplier = 1f;
+            Combattant.GlobalHealMultiplier = 1f;
+            Combattant.GlobalDodgeMultiplier = 1f;
 
             // Calcul des PV totaux initiaux
             float pvInitiaux = combattants.Sum(c => c.PV);
@@ -107,22 +116,73 @@ namespace ProjetDelta.Jeu
                     attaquant.SetCurrentTarget(cible);
                     nbAttaques++;
                     // Pour éviter les combats infinis : on augmente progressivement les dégâts globaux.
-                    float multiplicateurDegats = 1f;
-                    if (nbAttaques > seuilSuddenDeath)
-                    {
-                        multiplicateurDegats *= 1f + (nbAttaques - seuilSuddenDeath) * incrementSuddenDeath;
-                    }
+                    float multiplicateurDegats = Combattant.GlobalDamageMultiplier;
                     logger.Log(new CombatDataItem
                     {
                         Event = TypeEvenement.Autre,
                         Message = $"--- Debut du tour {nbAttaques} ({attaquant.Nom}) ---"
                     });
                     attaquant.DebutTour();
+                    if (!attaquant.EstVivant())
+                    {
+                        initiatives[attaquant] = 0;
+                        continue;
+                    }
                     attaquant.Attaquer(cible, multiplicateurDegats);
                 }
 
                 initiatives[attaquant] = 0;
                 tours++;
+
+                // Indiquer qu'on travaille encore si le combat s'etire
+                if (tours > 50 && tours % 25 == 0)
+                {
+                    string resume = ConstruireResume(tours, combattants, logger);
+                    _ui.Afficher(resume);
+                    logger.Log(new CombatDataItem
+                    {
+                        Event = TypeEvenement.Autre,
+                        Message = resume
+                    });
+                }
+
+                if (tours % toursParPalier == 0)
+                {
+                    palierDegats++;
+                    Combattant.GlobalDamageMultiplier = 1f + palierDegats * stepPct;
+                    Combattant.GlobalDodgeMultiplier = MathF.Max(0.05f, 1f - palierDegats * stepPct);
+
+                    if (tours >= 100)
+                    {
+                        palierHard++;
+                        Combattant.GlobalHealMultiplier = MathF.Max(0.05f, 1f - palierHard * stepHard);
+                        Combattant.GlobalDodgeMultiplier = MathF.Max(0.05f, Combattant.GlobalDodgeMultiplier - stepHard);
+                        foreach (var c in combattants.Where(c => c.EstVivant()))
+                        {
+                            var perte = MathF.Max(1f, c.PVMax * stepPct);
+                            c.SubirDegatsSansEffets(perte);
+                        }
+                    }
+
+                    string msg = $"L'etau se resserre (palier degats {palierDegats}) : +{palierDegats * 10}% degats, -{palierDegats * 10}% esquive";
+                    if (tours >= 100)
+                    {
+                        msg += $", -{palierHard * 10}% soins supl., -1% PV actuels";
+                    }
+                    logger.Log(new CombatDataItem
+                    {
+                        Event = TypeEvenement.Autre,
+                        Message = msg
+                    });
+
+                    // Resume detaille a chaque palier
+                    string resumePalier = ConstruireResume(tours, combattants, logger);
+                    logger.Log(new CombatDataItem
+                    {
+                        Event = TypeEvenement.Autre,
+                        Message = resumePalier
+                    });
+                }
 
                 // Ralentir un peu l'affichage apres quelques tours pour lisibilite
                 if (tours >= 5 && tours < 15)
@@ -142,6 +202,10 @@ namespace ProjetDelta.Jeu
             {
                 combattant.FinCombat();
             }
+            // Reset des multiplicateurs globaux pour les prochains combats
+            Combattant.GlobalDamageMultiplier = 1f;
+            Combattant.GlobalHealMultiplier = 1f;
+            Combattant.GlobalDodgeMultiplier = 1f;
 
             // Fin du combat
             if (!_joueur.EstVivant())
@@ -169,11 +233,19 @@ namespace ProjetDelta.Jeu
                     ResultatCombat = ResultatCombat.Lose;
                 }
             }
-                
-
+            CommandHandler.ClearOpponentsProvider();
         }
-        
 
+        private string ConstruireResume(int tour, List<Combattant> combattants, CombatLogger logger)
+        {
+            string hp = string.Join(" | ", combattants.Where(c => c.EstVivant())
+                .Select(c => $"{c.Nom}:{Math.Round(c.PV, 2)}/{Math.Round(c.PVMax, 2)}"));
+            string arts = string.Join(" | ", combattants.Where(c => c.EstVivant())
+                .Select(c => $"{c.Nom}:{(c.Artefacts.Count == 0 ? "aucun" : string.Join(", ", c.Artefacts.Select(a => a.Nom)))}"));
+            string mults = $"DMG x{Combattant.GlobalDamageMultiplier:F2}, HEAL x{Combattant.GlobalHealMultiplier:F2}, DODGE x{Combattant.GlobalDodgeMultiplier:F2}";
+            string last = logger.LastAction?.Message ?? "n/a";
+            return $"[Resume T{tour}] PV: {hp} | Artefacts: {arts} | Mult: {mults} | Derniere action: {last}";
+        }
 
     }
 }

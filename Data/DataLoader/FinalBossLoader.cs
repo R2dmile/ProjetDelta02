@@ -71,7 +71,8 @@ namespace ProjetDelta.Data.DataLoader
                 try
                 {
                     var legacy = JsonSerializer.Deserialize<JoueurData>(json);
-                    if (legacy != null)
+                    // N'accepter une ancienne sauvegarde que si elle est valide (nom present)
+                    if (legacy != null && !string.IsNullOrWhiteSpace(legacy.Nom))
                     {
                         state = new FinalBossState { Current = legacy, History = new List<JoueurData>() };
                     }
@@ -83,6 +84,11 @@ namespace ProjetDelta.Data.DataLoader
             }
             state ??= new FinalBossState();
             state.History ??= new List<JoueurData>();
+            // Si aucun boss valide, forcer un etat vide et sauvegarder pour eviter les placeholders
+            if (state.Current == null && state.History.Count == 0)
+            {
+                SaveState(state);
+            }
             _cache = state;
             return state;
         }
