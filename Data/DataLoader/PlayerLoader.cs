@@ -70,10 +70,10 @@ namespace ProjetDelta.Player
                 Background backgroundSelectionne = backgrounds.FirstOrDefault(b => b.Nom.Equals(data.BackgroundNom, StringComparison.OrdinalIgnoreCase))
                     ?? throw new Exception($"Background '{data.BackgroundNom}' introuvable.");
 
-                var joueur = new Joueur(data.Nom, backgroundSelectionne, classeSelectionnee, data.Stats, data.Niveau, data.Exp, data.Argent, data.Etage, data.Difficulte ?? "Normal", data.PointsNonDepenses);
-                EquipArtefacts(joueur, data.Artefacts);
-                return joueur;
-            }
+                var joueur = new Joueur(data.Nom, backgroundSelectionne, classeSelectionnee, data.Stats, data.Niveau, data.Exp, data.Argent, data.Etage, data.Difficulte ?? "Normal", data.PointsNonDepenses, appliquerAttributs: false);
+            EquipArtefacts(joueur, data.Artefacts);
+            return joueur;
+        }
 
             // Charge la liste complete des joueurs sauvegardes
             public static List<JoueurData> ChargerTous()
@@ -145,24 +145,37 @@ namespace ProjetDelta.Player
                 if (backgroundSelectionne == null)
                     throw new Exception($"Background '{data.BackgroundNom}' introuvable.");
 
-                var joueur = new Joueur(data.Nom, backgroundSelectionne, classeSelectionnee, data.Stats, data.Niveau, data.Exp, data.Argent, data.Etage, data.Difficulte ?? "Normal", data.PointsNonDepenses);
+                var joueur = new Joueur(data.Nom, backgroundSelectionne, classeSelectionnee, data.Stats, data.Niveau, data.Exp, data.Argent, data.Etage, data.Difficulte ?? "Normal", data.PointsNonDepenses, appliquerAttributs: false);
                 EquipArtefacts(joueur, data.Artefacts);
                 return joueur;
             }
 
-            private static void EquipArtefacts(Joueur joueur, List<string> artefactNoms)
-            {
-                if (artefactNoms == null || artefactNoms.Count == 0) return;
+        private static void EquipArtefacts(Joueur joueur, List<string> artefactNoms)
+        {
+            if (artefactNoms == null || artefactNoms.Count == 0) return;
+            var ordered = artefactNoms
+                .Where(n => !string.IsNullOrWhiteSpace(n))
+                .Select(n => ArtefactLoader.CreerInstance(n))
+                .Where(a => a != null)
+                .ToList();
 
-                foreach (var nom in artefactNoms)
-                {
-                    if (string.IsNullOrWhiteSpace(nom)) continue;
-                    var artefact = ArtefactLoader.CreerInstance(nom);
-                    if (artefact != null)
-                        joueur.EquipArtefact(artefact);
-                }
+            foreach (var art in ordered)
+            {
+                joueur.EquipArtefact(art!, applyOnEquip: false);
+            }
+
+            // Affichage concis : regrouper par nom (pour debug/ui console)
+            var groups = ordered
+                .GroupBy(a => a!.Nom, StringComparer.OrdinalIgnoreCase)
+                .Select(g => (Nom: g.First()!.Nom, Count: g.Count()))
+                .ToList();
+            if (groups.Count > 0 && joueur is Joueur j)
+            {
+                var summary = string.Join(", ", groups.Select(g => g.Count > 1 ? $"{g.Count}x {g.Nom}" : g.Nom));
+                j.Logger?.Log(new CombatDataItem { Event = TypeEvenement.Autre, Message = $"Artefacts charges : {summary}" });
             }
         }
     }
+}
 
 }

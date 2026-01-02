@@ -1,4 +1,4 @@
-﻿using ProjetDelta.Donjon.Monstres;
+using ProjetDelta.Donjon.Monstres;
 using ProjetDelta.Logger;
 using ProjetDelta.Player;
 using ProjetDelta.Systemes.UIJeu;
@@ -92,14 +92,14 @@ namespace ProjetDelta.Jeu
                     initiatives[combattant] += combattant.SPD;
                 }
 
-                // Détermination du combattant avec la plus haute initiative
+                // Determination du combattant avec la plus haute initiative
                 var attaquant = initiatives
                     .Where(i => i.Key.EstVivant())
                     .OrderByDescending(i => i.Value)
                     .First()
                     .Key;
 
-                // Détermination de la cible
+                // Determination de la cible
                 Combattant cible;
                 if (attaquant == _joueur)
                 {
@@ -115,7 +115,7 @@ namespace ProjetDelta.Jeu
                 {
                     attaquant.SetCurrentTarget(cible);
                     nbAttaques++;
-                    // Pour éviter les combats infinis : on augmente progressivement les dégâts globaux.
+                    // Pour eviter les combats infinis : on augmente progressivement les degats globaux.
                     float multiplicateurDegats = Combattant.GlobalDamageMultiplier;
                     logger.Log(new CombatDataItem
                     {
@@ -215,23 +215,13 @@ namespace ProjetDelta.Jeu
             }
             else if (!_monstres.Any(m => m.EstVivant()))
             {
-                _ui.Afficher("Vous avez gagné le combat !");
+                _ui.Afficher("Vous avez gagne le combat !");
                 ResultatCombat = ResultatCombat.Win;
             }
             else
             {
-                float pvMonstres = _monstres.Where(m => m.EstVivant()).Sum(m => m.PV);
-                _ui.Afficher("Fin du combat : limite de tours atteinte.");
-                if (_joueur.PV >= pvMonstres)
-                {
-                    _ui.Afficher("Victoire par décision (plus de PV restants).");
-                    ResultatCombat = ResultatCombat.Win;
-                }
-                else
-                {
-                    _ui.Afficher("Défaite par décision (moins de PV restants).");
-                    ResultatCombat = ResultatCombat.Lose;
-                }
+                _ui.Afficher("Fin du combat : limite de tours atteinte (defaite automatique).");
+                ResultatCombat = ResultatCombat.Lose;
             }
             CommandHandler.ClearOpponentsProvider();
         }
@@ -249,3 +239,5 @@ namespace ProjetDelta.Jeu
 
     }
 }
+
+

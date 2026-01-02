@@ -84,9 +84,11 @@ namespace ProjetDelta.UI
             }
         }
 
-        public void GoNext(string prompt = "Appuie sur Entree pour continuer.")
+        public void GoNext(string prompt = "Continuer")
         {
-            var message = string.IsNullOrWhiteSpace(prompt) ? "Appuie sur Entree pour continuer." : prompt;
+            var message = string.IsNullOrWhiteSpace(prompt) || prompt.Equals("Continuer", StringComparison.OrdinalIgnoreCase)
+                ? "Appuie sur Entree pour continuer."
+                : prompt;
             QuestionReponse(message);
         }
 

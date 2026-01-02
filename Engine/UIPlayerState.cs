@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ProjetDelta.UI
 {
-    public record UIArtefact(string Nom, string Description, string Rarity, string Color);
+    public record UIArtefact(string Nom, string Description, string Rarity, string Color, int Count = 1);
 
     public record UIPlayerState(
         string Nom,
@@ -16,6 +16,8 @@ namespace ProjetDelta.UI
         float PvMax,
         float Attaque,
         float Vitesse,
-        IReadOnlyList<UIArtefact> Artefacts
+        int PointsNonDepenses,
+        IReadOnlyList<UIArtefact> Artefacts,
+        bool EnVie
     );
 }

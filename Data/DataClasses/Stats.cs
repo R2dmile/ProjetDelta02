@@ -26,6 +26,13 @@
         }
         public void SubirDegats(float degats)
         {
+            if (float.IsNaN(degats) || float.IsInfinity(degats))
+            {
+                // Inf ou NaN = one-shot
+                VieCourante = 0;
+                return;
+            }
+
             VieCourante -= degats;
             if (VieCourante < 0) VieCourante = 0;
             if (VieCourante > VieMax) VieCourante = VieMax;

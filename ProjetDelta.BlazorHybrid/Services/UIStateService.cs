@@ -13,6 +13,7 @@ namespace ProjetDelta.BlazorHybrid.Services
         public record MessageLine(IReadOnlyList<MessageSegment> Segments);
 
         public ObservableCollection<MessageLine> Messages { get; } = new();
+        private const int MaxMessages = 120;
         public ObservableCollection<OptionVm> Options { get; } = new();
         public UIPlayerState? Player { get; private set; }
         public bool CommandsAvailable => Player != null;
@@ -23,9 +24,13 @@ namespace ProjetDelta.BlazorHybrid.Services
         public bool BackEnabled { get; private set; }
         public string BackLabel { get; private set; } = "Retour";
         public bool IsLoading { get; private set; } = true;
+        public bool CanReorder { get; private set; } = true;
+        public bool DarkModeUnlocked { get; private set; } = false;
+        public bool DarkModeEnabled { get; private set; } = false;
         public event Action? Changed;
 
         private TaskCompletionSource<string>? _choiceTcs;
+        private readonly Queue<string> _injectedCommands = new();
 
         private void NotifyChanged()
         {
@@ -51,6 +56,11 @@ namespace ProjetDelta.BlazorHybrid.Services
             {
                 IsLoading = false;
                 Messages.Add(line);
+                // Trim pour limiter le lag UI : garde seulement les dernières lignes
+                while (Messages.Count > MaxMessages)
+                {
+                    Messages.RemoveAt(0);
+                }
             });
             NotifyChanged();
         }
@@ -62,10 +72,29 @@ namespace ProjetDelta.BlazorHybrid.Services
 
         public void SetPlayerState(UIPlayerState state)
         {
+            // Conserver l'ordre actuel des artefacts si on recoit un etat equivalent (evite de perdre le reorder utilisateur)
+            state = AlignArtefactOrder(state);
             App.Current?.Dispatcher.Dispatch(() =>
             {
                 Player = state;
+                CanReorder = state.EnVie;
                 IsLoading = false;
+            });
+            NotifyChanged();
+        }
+
+        public void ApplyLocalReorder(int from, int to)
+        {
+            if (Player == null) return;
+            var list = Player.Artefacts.ToList();
+            if (from < 0 || to < 0 || from >= list.Count || to >= list.Count || from == to) return;
+            var item = list[from];
+            list.RemoveAt(from);
+            list.Insert(to, item);
+            var updated = Player with { Artefacts = list };
+            App.Current?.Dispatcher.Dispatch(() =>
+            {
+                Player = updated;
             });
             NotifyChanged();
         }
@@ -165,11 +194,39 @@ namespace ProjetDelta.BlazorHybrid.Services
 
         public string WaitForChoice()
         {
+            if (_injectedCommands.Count > 0)
+            {
+                return _injectedCommands.Dequeue();
+            }
             if (_choiceTcs == null)
             {
                 return string.Empty;
             }
             return _choiceTcs.Task.GetAwaiter().GetResult();
+        }
+
+        public void EnqueueCommand(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return;
+            // Si on est sur un écran "Appuie sur Entrée", on ne remplace pas la prochaine action :
+            // on garde le prompt et on met la commande en file pour la prochaine vraie interaction.
+            if (_choiceTcs != null && AwaitingNext)
+            {
+                _injectedCommands.Enqueue(command);
+                NotifyChanged();
+                return;
+            }
+
+            if (_choiceTcs != null)
+            {
+                ClearInteraction();
+                _choiceTcs.TrySetResult(command);
+                _choiceTcs = null;
+                NotifyChanged();
+                return;
+            }
+            _injectedCommands.Enqueue(command);
+            NotifyChanged();
         }
 
         private void ResetAwaiters()
@@ -184,6 +241,49 @@ namespace ProjetDelta.BlazorHybrid.Services
                 BackEnabled = false;
                 Options.Clear();
             });
+        }
+
+        public void SetDarkMode(bool unlocked, bool enabled)
+        {
+            App.Current?.Dispatcher.Dispatch(() =>
+            {
+                DarkModeUnlocked = unlocked;
+                DarkModeEnabled = enabled;
+            });
+            NotifyChanged();
+        }
+
+        private UIPlayerState AlignArtefactOrder(UIPlayerState incoming)
+        {
+            if (Player == null) return incoming;
+            var previous = Player.Artefacts;
+            if (previous == null || previous.Count == 0) return incoming;
+
+            var map = incoming.Artefacts
+                .GroupBy(a => a.Nom, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var ordered = new List<UIArtefact>();
+
+            foreach (var art in previous)
+            {
+                if (map.TryGetValue(art.Nom, out var found) && !used.Contains(found.Nom))
+                {
+                    ordered.Add(found);
+                    used.Add(found.Nom);
+                }
+            }
+
+            foreach (var art in incoming.Artefacts)
+            {
+                if (!used.Contains(art.Nom))
+                {
+                    ordered.Add(art);
+                    used.Add(art.Nom);
+                }
+            }
+
+            return incoming with { Artefacts = ordered };
         }
     }
 }

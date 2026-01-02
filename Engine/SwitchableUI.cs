@@ -45,7 +45,7 @@ namespace ProjetDelta.UI
         public string QuestionReponse(string question = "") => _active.QuestionReponse(question);
         public T ChoisirOption<T>(string titre, List<T> options, Func<T, string> optionToString) => _active.ChoisirOption(titre, options, optionToString);
         public T ChoisirOptionAvecConfirmation<T>(string titre, List<T> options, Func<T, string> optionToString) => _active.ChoisirOptionAvecConfirmation(titre, options, optionToString);
-        public void GoNext(string prompt = "Appuie sur Entree pour continuer.") => _active.GoNext(prompt);
+        public void GoNext(string prompt = "Continuer") => _active.GoNext(prompt);
         public void UpdatePlayerState(UIPlayerState state) => _active.UpdatePlayerState(state);
         public void TerminerLigne() => _active.TerminerLigne();
     }

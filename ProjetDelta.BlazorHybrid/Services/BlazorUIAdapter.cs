@@ -9,7 +9,7 @@ namespace ProjetDelta.BlazorHybrid.Services
     /// Adaptateur IUI qui pousse les messages/choix vers l'etat Blazor.
     /// Interactions avancées (choix utilisateur) restent à implémenter côté page Razor.
     /// </summary>
-    public class BlazorUIAdapter : IUI, IUILogTarget
+    public class BlazorUIAdapter : IUI, IUILogTarget, IDarkModeAware
     {
         private readonly UIStateService _state;
         private readonly List<UIStateService.MessageSegment> _lineBuffer = new();
@@ -96,17 +96,22 @@ namespace ProjetDelta.BlazorHybrid.Services
             return _state.WaitForChoice();
         }
 
-        public void GoNext(string prompt = "Appuie sur Entree pour continuer.")
+        public void GoNext(string prompt = "Continuer")
         {
             FlushBuffer();
-            var message = string.IsNullOrWhiteSpace(prompt) ? "Appuie sur Entree pour continuer." : prompt;
-            _state.BeginNext(message, "Continuer");
+            var message = string.IsNullOrWhiteSpace(prompt) ? "Continuer" : prompt;
+            _state.BeginNext(message, message);
             _state.WaitForChoice();
         }
 
         public void UpdatePlayerState(UIPlayerState state)
         {
             _state.SetPlayerState(state);
+        }
+
+        public void SetDarkMode(bool unlocked, bool enabled)
+        {
+            _state.SetDarkMode(unlocked, enabled);
         }
 
         public T ChoisirOption<T>(string titre, List<T> options, Func<T, string> optionToString)

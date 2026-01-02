@@ -71,7 +71,8 @@ namespace ProjetDelta.Donjon.Rooms
             var options = new Dictionary<string, (string label, int price, string idOrNom, ArtefactDto dto)>();
             int idx = 1;
             const int prixRandomBase = 10;
-            float priceMult = 1f + 0.05f * Math.Max(0, joueur.Etage - 1); // +5% par etage
+            float priceMult = 1f + 0.08f * Math.Max(0, joueur.Etage - 1); // +8% par etage (buff leger)
+            if (joueur.Etage >= 6) priceMult *= 1.5f; // surcharge etage 6
             int Scale(int p) => (int)Math.Ceiling(p * priceMult);
             int PriceCommon() => (int)Math.Ceiling(20 * priceMult);
             int PriceRare() => (int)Math.Ceiling(90 * priceMult);
@@ -280,7 +281,7 @@ namespace ProjetDelta.Donjon.Rooms
                         gains?.Add(a.Nom);
                     }
                 }
-                if (!silent) ui.GoNext("Appuie sur Entree pour continuer.");
+                if (!silent) ui.GoNext();
                 return true;
             }
             else if (selection.idOrNom == "__HEAL__")
@@ -311,7 +312,7 @@ namespace ProjetDelta.Donjon.Rooms
                 }
                 if (selection.idOrNom == "__RANDOM__" || selection.idOrNom == "__RARE__")
                 {
-                    ui.GoNext("Appuie sur Entree pour continuer.");
+                    ui.GoNext();
                 }
             }
             return true;

@@ -20,7 +20,7 @@ namespace ProjetDelta.Donjon.Monstres
             // Mode facile davantage amplifie (stats a 70%, vitesse aussi reduite)
             public static DifficultyModifier Facile => new("Facile", 0.7f, 0.7f, 0.7f, 0);
             public static DifficultyModifier Normal => new("Normal", 1f, 1f, 1f, 1);
-            public static DifficultyModifier Difficile => new("Difficile", 1.2f, 1.2f, 1.05f, 2);
+            public static DifficultyModifier Difficile => new("Difficile", 1.1f, 1.1f, 1.03f, 2);
 
         public static DifficultyModifier FromName(string nom)
         {
@@ -63,11 +63,11 @@ namespace ProjetDelta.Donjon.Monstres
 
             if (level <= 0) return new DifficultyModifier(noms[idx], 0.7f, 0.7f, 0.7f, 0);
             if (level == 1) return new DifficultyModifier(noms[idx], 1f, 1f, 1f, 1);
-            if (level == 2) return new DifficultyModifier(noms[idx], 1.2f, 1.2f, 1.05f, 2);
+            if (level == 2) return new DifficultyModifier(noms[idx], 1.1f, 1.1f, 1.03f, 2);
 
-            // A partir du niveau 3, on augmente progressivement
-            float hpAtkMult = 1f + 0.1f * level; // +10% par palier
-            float spdMult = 1f + 0.02f * level;  // +2% par palier
+            // A partir du niveau 3, on augmente progressivement (base plus douce mais scaling cumulatif)
+            float hpAtkMult = 1.1f + 0.06f * (level - 2); // +6% par palier au-delà du 2
+            float spdMult = 1.03f + 0.015f * (level - 2); // +1.5% par palier au-delà du 2
             return new DifficultyModifier(noms[idx], hpAtkMult, hpAtkMult, spdMult, level);
         }
 
@@ -89,6 +89,7 @@ namespace ProjetDelta.Donjon.Monstres
         public static DifficultyModifier CurrentDifficulty { get; set; } = DifficultyModifier.Normal;
         private readonly List<ArtefactDto> _commons;
         private readonly Random _rand = new();
+        public int CurrentFloor { get; set; } = 1;
         public MonstreBuilder()
         {
             var charges = ChargerTousLesFichiers();
@@ -312,27 +313,44 @@ namespace ProjetDelta.Donjon.Monstres
             return new Monstre("Ombre Primordiale", "darkmagenta", attsDefault, statsDefault, tier: 7);
         }
 
-        private Monstre FromTemplate(MonstreTemplate t)
+        private Monstre FromTemplate(MonstreTemplate t, float extraScale = 1f)
         {
             var diff = CurrentDifficulty;
+            var baseAtk = t.Stats.Attaque;
+            if (t.Nom.Equals("The Winner", StringComparison.OrdinalIgnoreCase))
+            {
+                baseAtk = float.PositiveInfinity;
+            }
             var stats = new Stats(
-                t.Stats.VieMax * diff.HpMult,
-                t.Stats.VieMax * diff.HpMult,
-                t.Stats.Attaque * diff.AtkMult,
-                t.Stats.Vitesse * diff.SpdMult
+                t.Stats.VieMax * diff.HpMult * extraScale,
+                t.Stats.VieMax * diff.HpMult * extraScale,
+                baseAtk * diff.AtkMult * extraScale,
+                t.Stats.Vitesse * diff.SpdMult * extraScale
             );
             var att = new Attributs();
             att.AddAttributes(t.Attrs);
             var monstre = new Monstre(t.Nom, t.Couleur, att, stats, t.Tier);
 
             // Donner des artefacts aux monstres selon la difficulte (triangulaire)
+            // mais n'en equiper qu'une portion progressive selon l'etage (20% au debut, +20% par etage jusqu'a 100% a l'etage 5).
             int Tri(int n) => n * (n + 1) / 2;
             int artefactsToGive = Tri(diff.Level);
-            for (int i = 0; i < artefactsToGive && _commons.Count > 0; i++)
+            if (artefactsToGive > 0 && _commons.Count > 0)
             {
-                var dto = _commons[_rand.Next(_commons.Count)];
-                var art = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
-                if (art != null) monstre.EquipArtefact(art);
+                float portion = Math.Clamp(CurrentFloor * 0.2f, 0.2f, 1.0f);
+                int toKeep = Math.Min(artefactsToGive, (int)Math.Ceiling(artefactsToGive * portion));
+
+                var generated = new List<ArtefactDto>();
+                for (int i = 0; i < artefactsToGive; i++)
+                {
+                    generated.Add(_commons[_rand.Next(_commons.Count)]);
+                }
+
+                foreach (var dto in generated.OrderBy(_ => _rand.Next()).Take(toKeep))
+                {
+                    var art = ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
+                    if (art != null) monstre.EquipArtefact(art);
+                }
             }
 
             // A partir de diff >=4, donner des rares en plus (triangulaire depuis niveau 4)
@@ -361,6 +379,16 @@ namespace ProjetDelta.Donjon.Monstres
             }
 
             return monstre;
+        }
+
+        public Monstre CreerMonstreParTierScaled(int tier, float scaleStats)
+        {
+            if (_parTier.TryGetValue(tier, out var liste) && liste.Count > 0)
+            {
+                var rand = new Random();
+                return FromTemplate(liste[rand.Next(liste.Count)], scaleStats);
+            }
+            return CreerMonstreParTier(tier);
         }
     }
 }

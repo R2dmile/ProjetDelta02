@@ -13,6 +13,7 @@ namespace ProjetDelta.Player
 
     public delegate void AttackHandler(Combattant cible, ref float degats);
     public delegate void DamageTakenHandler(ref float degats);
+    public delegate void AfterAttackHandler(Combattant cible, float baseDegats, float finalDegats, float degatsInfliges);
     public abstract class Combattant
     {
         // Multiplicateurs globaux ajustes pendant les combats (sudden death)
@@ -55,6 +56,7 @@ namespace ProjetDelta.Player
         public event Action? OnCombatEnd;
         public event Action? OnEquip;
         public event Action? OnTurnStart;
+        public event AfterAttackHandler? OnAfterAttack;
         public List<IArtefact> Artefacts { get; private set; } = new();
 
         protected ICombatLogger _logger = null!;
@@ -87,14 +89,24 @@ namespace ProjetDelta.Player
         public virtual void SetLogger(ICombatLogger logger)
         {
             _logger = logger;
+            // injecter un logger dans les artefacts déjà équipés pour les affichages de load/resume
+            foreach (var art in Artefacts)
+            {
+                art.Register(this);
+            }
         }
 
-        public virtual void EquipArtefact(IArtefact artefact)
+        public virtual void EquipArtefact(IArtefact artefact, bool applyOnEquip = true)
         {
+            // Toujours appliquer l'effet propre a l'artefact (Register/EquipTo) pour reinitialiser ses hooks,
+            // meme lors d'un chargement (applyOnEquip=false evite seulement de declencher les listeners globaux).
             artefact.EquipTo(this);
             artefact.Register(this);
             Artefacts.Add(artefact);
-            OnEquip?.Invoke();
+            if (applyOnEquip)
+            {
+                OnEquip?.Invoke();
+            }
         }
 
         public void DebutTour()
@@ -111,10 +123,7 @@ namespace ProjetDelta.Player
 
         public virtual void Attaquer(Combattant cible, float multiplicateurDegats = 1f)
         {
-            float degats = _stats.Attaque * multiplicateurDegats * GlobalDamageMultiplier;
-            // L'attaquant peut modifier les degats via ses artefacts avant l'application
-            OnAttack?.Invoke(cible, ref degats);
-
+            float degatsBase = _stats.Attaque * multiplicateurDegats * GlobalDamageMultiplier;
             var attaqueLog = new CombatDataItem
             {
                 Event = TypeEvenement.Attaque,
@@ -122,9 +131,14 @@ namespace ProjetDelta.Player
                 NomRecevant = cible.Nom,
                 CouleurAtt = Couleur,
                 CouleurDef = cible.Couleur,
-                DegatInflige = degats
+                DegatInflige = degatsBase // log l'attaque avant les modifs d'artefacts
             };
             _logger?.Log(attaqueLog);
+
+            float degats = degatsBase;
+            // L'attaquant peut modifier les degats via ses artefacts avant l'application
+            OnAttack?.Invoke(cible, ref degats);
+            degats = SanitizeDamage(degats);
 
             var degatsLog = new CombatDataItem
             {
@@ -136,12 +150,15 @@ namespace ProjetDelta.Player
             };
 
             cible.SubirDegats(degats, degatsLog, this);
+            OnAfterAttack?.Invoke(cible, degatsBase, degats, degatsLog.DegatSubi);
         }
 
         public virtual void SubirDegats(float degats, CombatDataItem damageLog, Combattant? attaquant = null)
         {
+            degats = SanitizeDamage(degats);
             // Les artefacts defensifs peuvent reagir/ajuster les degats recus
             OnDamageTaken?.Invoke(ref degats);
+            degats = SanitizeDamage(degats);
 
             // Si aucun degat final, on ne loggue rien et on ne declenche pas les effets qui repondent aux degats (epines, etc.)
             if (degats <= 0)
@@ -166,6 +183,7 @@ namespace ProjetDelta.Player
         // Degats sans declencher les evenements/artefacts defensifs.
         public void SubirDegatsSansEffets(float degats)
         {
+            degats = SanitizeDamage(degats);
             _stats.SubirDegats(degats);
         }
 
@@ -186,12 +204,12 @@ namespace ProjetDelta.Player
             {
                 if (LogRepeatUsed) return;
                 message = $"{message} x{LogRepeatCount}";
-                LogRepeatUsed = true;
-            }
-            string hpCourant = includeHp ? _stats.VieCourante.ToString() : string.Empty;
-            string hpTotal = includeHp ? _stats.VieMax.ToString() : string.Empty;
+            LogRepeatUsed = true;
+        }
+        string hpCourant = includeHp ? _stats.VieCourante.ToString() : string.Empty;
+        string hpTotal = includeHp ? _stats.VieMax.ToString() : string.Empty;
             var color = Artefacts.FirstOrDefault(a => a.Nom.Equals(artefactNom, StringComparison.OrdinalIgnoreCase))?.Color;
-            if (string.IsNullOrWhiteSpace(color)) color = "green";
+            if (string.IsNullOrWhiteSpace(color)) color = artefactNom.ToLower().Contains("brul") ? "orange" : "green";
             _logger?.Log(new CombatDataItem
             {
                 Event = TypeEvenement.Artefact,
@@ -270,6 +288,15 @@ namespace ProjetDelta.Player
         public void AddAttributeBonus(AttributsDto dto)
         {
             _attributs.AddAttributes(dto);
+        }
+
+        private static float SanitizeDamage(float value)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value))
+            {
+                return float.PositiveInfinity;
+            }
+            return value;
         }
     }
 }

@@ -36,6 +36,7 @@ public class GameApp
         _ui.Afficher("Debut du jeu");
 
         var profile = ProfileLoader.Load();
+        CommandHandler.SetProfile(profile);
         // Si la meta est debloquee sans avoir battu le boss final, la reverrouiller
         if (profile.MetaUnlocked && !profile.FinalBossBeaten)
         {
@@ -46,6 +47,11 @@ public class GameApp
         if (profile.MetaUnlocked || profile.FinalBossBeaten)
         {
             _ui.Afficher($"Meta-currency : {profile.MetaCurrency}");
+        }
+
+        if (_ui is IDarkModeAware darkUi)
+        {
+            darkUi.SetDarkMode(profile.DarkModeUnlocked, profile.DarkModeEnabled);
         }
 
         if (testArtefact)
@@ -136,13 +142,15 @@ public class GameApp
             }
 
             joueur.AppliquerMetaBonuses(profile.MetaGoldBonus, profile.MetaLootBonus, profile.MetaStatBonus);
-            MonstreBuilder.CurrentDifficulty = DifficultyModifier.FromLevel(joueur.DifficulteLevel);
+            var diff = DifficultyModifier.FromLevel(joueur.DifficulteLevel);
+            MonstreBuilder.CurrentDifficulty = diff;
+            int maxEtage = diff.Level >= 5 ? 6 : 5;
 
             ShowQuickProgress("Chargement du personnage...");
 
             _ui.Afficher($"Bonjour, {joueur.Nom}");
-            _ui.Afficher("Objectif : franchis les 5 etages et bats le boss final.");
-            _ui.GoNext("Appuie sur Entree pour commencer.");
+            _ui.Afficher($"Objectif : franchis les {maxEtage} etages et bats le boss final.");
+            _ui.GoNext("Commencer l'aventure");
             _ui.Afficher($"Salle courante: {(string.IsNullOrWhiteSpace(joueur.RoomName) ? "GoldenVault" : joueur.RoomName)}");
             _ui.Afficher($"PV: {joueur.PV}/{joueur.PVMax}");
             if (joueur.Artefacts.Count > 0)
@@ -209,23 +217,23 @@ public class GameApp
                     // Ne pas imposer de pause apres un embranchement ou une boutique
                     if (currentRoom is not IntersectionRoom && currentRoom is not ShopRoom)
                     {
-                        _ui.GoNext("Appuie sur Entree pour continuer");
+                        _ui.GoNext();
                     }
                     if (currentRoom is CombatRoom combatRoom && combatRoom.IsBoss && joueur.EstVivant())
                     {
                         bossesThisRun++;
                         profile.BossesDefeated += 1;
-                        var diff = DifficultyModifier.FromName(joueur.Difficulte);
+                        var diffBoss = DifficultyModifier.FromName(joueur.Difficulte);
                         // Deblocage de difficulte uniquement apres un boss d'etage final
-                        if (combatRoom.IsBoss && joueur.Etage >= 5 && diff.Level >= profile.HighestDifficultyUnlocked && profile.HighestDifficultyUnlocked < 10)
+                        if (combatRoom.IsBoss && joueur.Etage >= maxEtage && diffBoss.Level >= profile.HighestDifficultyUnlocked && profile.HighestDifficultyUnlocked < 10)
                         {
-                            profile.HighestDifficultyUnlocked = diff.Level + 1;
+                            profile.HighestDifficultyUnlocked = diffBoss.Level + 1;
                             var nomDiff = DifficultyModifier.FromLevel(profile.HighestDifficultyUnlocked).Nom;
                             _ui.Afficher($"Nouvelle difficulte debloquee : {nomDiff}");
                         }
                         ProfileLoader.Save(profile);
 
-                        if (joueur.Etage >= 5)
+                        if (joueur.Etage >= maxEtage)
                         {
                             bool firstClear = !profile.FinalBossBeaten;
                             if (firstClear)
@@ -239,7 +247,7 @@ public class GameApp
                             }
                             // Burst de meta-currency selon la difficulte vaincue
                             int Tri(int n) => n * (n + 1) / 2;
-                            var burst = Tri(diff.Level + 1) * 20;
+                            var burst = Tri(diffBoss.Level + 1) * 20;
                             profile.MetaCurrency += burst;
                             ProfileLoader.Save(profile);
                             _ui.Afficher($"Gain meta-currency pour avoir termine la difficulte {diff.Nom} : +{burst} (total {profile.MetaCurrency}).");
@@ -351,18 +359,31 @@ public class GameApp
     private UIPlayerState BuildPlayerState(Joueur joueur)
     {
         var dtos = ArtefactLoader.GetDtos();
-        var artefacts = joueur.Artefacts.Select(a =>
+        var artefacts = new List<UIArtefact>();
+        var indexByName = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var a in joueur.Artefacts)
         {
+            var key = a.Nom;
+            if (indexByName.TryGetValue(key, out var idx))
+            {
+                var existing = artefacts[idx];
+                artefacts[idx] = existing with { Count = existing.Count + 1 };
+                continue;
+            }
+
             var dto = dtos.FirstOrDefault(d =>
-                string.Equals(d.Nom, a.Nom, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(d.Id, a.Nom, StringComparison.OrdinalIgnoreCase));
+                string.Equals(d.Nom, key, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(d.Id, key, StringComparison.OrdinalIgnoreCase));
             var rarity = dto?.Rarity ?? "common";
             var desc = dto?.Description ?? a.Description ?? "";
             var color = !string.IsNullOrWhiteSpace(dto?.Color)
                 ? dto!.Color!.Trim().ToLowerInvariant()
                 : (!string.IsNullOrWhiteSpace(a.Color) ? a.Color : "green");
-            return new UIArtefact(a.Nom, desc, rarity, color);
-        }).ToList();
+
+            indexByName[key] = artefacts.Count;
+            artefacts.Add(new UIArtefact(key, desc, rarity, color, 1));
+        }
 
         return new UIPlayerState(
             joueur.Nom,
@@ -376,7 +397,9 @@ public class GameApp
             joueur.PVMax,
             joueur.Attaque,
             joueur.SPD,
-            artefacts
+            joueur.PointsNonDepenses,
+            artefacts,
+            joueur.EstVivant()
         );
     }
 
@@ -434,6 +457,7 @@ public class GameApp
             int cClasse = (int)Math.Ceiling(100 * (1 + 0.1f * Count(profile.MetaClasseMultBonus, 0.10f)));
             int cArtefact = (int)Math.Ceiling(75 * (1 + 0.15f * (profile.MetaArtefacts?.Count ?? 0)));
             int cUi = 100;
+            int cDark = 75;
 
             _ui.Afficher($"Meta-currency actuelle : {profile.MetaCurrency}");
             var options = new Dictionary<string, string>
@@ -449,6 +473,10 @@ public class GameApp
             if (!profile.MauiUnlocked)
             {
                 options["7"] = $"Debloquer l'UI MAUI/Blazor (cout {cUi})";
+            }
+            else if (!profile.DarkModeUnlocked)
+            {
+                options["8"] = $"Debloquer le dark mode (cout {cDark})";
             }
             var choix = _ui.ChoisirOption("Boutique meta :", options).Item1;
             if (choix == "0") return;
@@ -567,6 +595,33 @@ public class GameApp
                 profile.UseBlazorUI = true;
                 ProfileLoader.Save(profile);
                 _ui.Afficher("UI MAUI/Blazor debloquee ! Redemarre le jeu pour voir l'option au lancement.");
+            }
+            else if (choix == "8")
+            {
+                if (!profile.MauiUnlocked)
+                {
+                    _ui.Afficher("Debloque d'abord l'UI MAUI/Blazor.");
+                    continue;
+                }
+                if (profile.DarkModeUnlocked)
+                {
+                    _ui.Afficher("Dark mode deja debloque.");
+                    continue;
+                }
+                int cout = cDark;
+                if (profile.MetaCurrency < cout)
+                {
+                    _ui.Afficher("Pas assez de meta-currency.");
+                    continue;
+                }
+                profile.MetaCurrency -= cout;
+                profile.DarkModeUnlocked = true;
+                ProfileLoader.Save(profile);
+                if (_ui is IDarkModeAware darkUi)
+                {
+                    darkUi.SetDarkMode(true, profile.DarkModeEnabled);
+                }
+                _ui.Afficher("Dark mode debloque ! Un bouton apparait dans l'UI MAUI.");
             }
             ProfileLoader.Save(profile);
         }

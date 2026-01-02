@@ -34,6 +34,8 @@ namespace ProjetDelta.Artifacts
         private readonly SimpleTrigger? _onEquip;
         private readonly TurnTrigger? _onTurnStart;
         public string Color { get; private set; }
+        private readonly HashSet<Combattant> _registered = new();
+        private readonly HashSet<Combattant> _equipApplied = new();
 
         private static string NormalizeColor(string color) =>
             string.IsNullOrWhiteSpace(color) ? "green" : color.Trim().ToLowerInvariant();
@@ -68,6 +70,8 @@ namespace ProjetDelta.Artifacts
 
         public  void Register(Combattant bearer)
         {
+            if (_registered.Contains(bearer)) return;
+            _registered.Add(bearer);
             if (_onAttack != null)
                 bearer.OnAttack += (Combattant cible, ref float degats) =>
                 {
@@ -125,6 +129,8 @@ namespace ProjetDelta.Artifacts
 
         public void EquipTo(Combattant bearer)
         {
+            if (_equipApplied.Contains(bearer)) return;
+            _equipApplied.Add(bearer);
             _onEquip?.Invoke(bearer);
         }
     }

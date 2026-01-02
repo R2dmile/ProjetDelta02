@@ -6,6 +6,8 @@ using System.Text.Json;
 using ProjetDelta.Donjon.Monstres;
 using ProjetDelta.Donjon.Rooms;
 using ProjetDelta.Data.DataLoader;
+using ProjetDelta.Artifacts;
+using ArtefactDto = ProjetDelta.Data.DataClasses.ArtefactDto;
 
 namespace ProjetDelta.Data.DataLoader
 {
@@ -20,6 +22,7 @@ namespace ProjetDelta.Data.DataLoader
         public Dictionary<string, Room> GetRooms(bool randomize = false, int etage = 1)
         {
             string json = DataFileHelper.ReadText("Data/DataStorage/rooms/rooms.json");
+            _builder.CurrentFloor = etage;
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             RawRoomList rawRoomList = JsonSerializer.Deserialize<RawRoomList>(json, options) ?? new RawRoomList { rooms = new List<RawRoom>() };
@@ -362,7 +365,8 @@ namespace ProjetDelta.Data.DataLoader
                 "Seigneur de l'etage 2",
                 "Gardien de l'etage 3",
                 "Tyran de l'etage 4",
-                "Boss ultime"
+                "Boss ultime",
+                "Parodie du premier cercle"
             };
             string[] descs =
             {
@@ -370,7 +374,8 @@ namespace ProjetDelta.Data.DataLoader
                 "Un seigneur guerrier t'attend, l'aura lourde.",
                 "Un gardien silencieux protege ce palier.",
                 "Un tyran surveille les marches superieures.",
-                "La salle du trone semble respirer, prete a defier."
+                "La salle du trone semble respirer, prete a defier.",
+                "Une repetition macabre du premier etage, mais l'ennemi semble bien plus dangereux."
             };
             int idx = Math.Clamp(etage - 1, 0, noms.Length - 1);
             string display = noms[idx];
@@ -413,22 +418,58 @@ namespace ProjetDelta.Data.DataLoader
                 }
             }
 
-            // Combat generé selon l'etage
-            int minTier = Math.Max(1, etage - 1);
-            int maxTier = Math.Max(minTier, Math.Min(etage, 7));
-            int bossTier = Math.Min(7, etage + 2);
+            // Combat generé selon l'etage (cycle tous les 5 etages)
+            int baseTier = ((etage - 1) % 5) + 1; // etage1->1, 2->2, 3->3, 4->4, 5->5, 6->1, 7->2...
+            int minTier = Math.Max(1, baseTier - 1);
+            int maxTier = Math.Min(7, baseTier);
+            int bossTier = Math.Min(7, baseTier + 2);
             var tiersPool = new[] { minTier, maxTier }.Distinct().ToList();
+            float tierScale = 1f + (etage - 1) * (0.06f + 0.01f * MonstreBuilder.CurrentDifficulty.Level);
+            if (etage == 7) tierScale *= 3f;
+
+            // Comptes parametrables (permettent d'augmenter facilement plus tard)
+            const int baseStandardCount = 1;
+            const int baseEliteCount = 2;
+            const int globalBonus = 1; // bonus actuel (+1 monstre)
+            int standardCount = baseStandardCount + globalBonus; // => 2 actuellement
+            int eliteCount = baseEliteCount + globalBonus;       // => 3 actuellement
+
+            // Etage 6 special : visuels T1 mais stats gonflees et +1 monstre, artefacts C+R+E
+            if (etage == 6 && !raw.boss)
+            {
+                float scaleEtage6 = 3f; // boost supplementaire pour approcher la puissance etage 5
+                int count = standardCount + 1; // toujours un de plus que la logique standard
+                for (int i = 0; i < count; i++)
+                {
+                    var m = _builder.CreerMonstreParTierScaled(1, scaleEtage6);
+                    AjouterArtefactsEtage6(m);
+                    result.Add(m);
+                }
+                return result;
+            }
 
             // Combat "elite" explicite : tiers +1 et drop d'artefact garanti apres le combat
             if (isElite)
             {
                 tiersPool = new[] { Math.Min(7, maxTier + 1) }.ToList();
-                var elite = _builder.CreerMonstreParTiers(tiersPool);
-                return new List<Monstre> { elite };
+                var list = new List<Monstre>();
+                for (int i = 0; i < eliteCount; i++)
+                {
+                    var m = _builder.CreerMonstreParTiers(tiersPool);
+                    if (tierScale != 1f) m = _builder.CreerMonstreParTierScaled(m.Tier, tierScale);
+                    list.Add(m);
+                }
+                return list;
             }
             // Boss special
             if (raw.boss || string.Equals(raw.name, "FinalFight", StringComparison.OrdinalIgnoreCase))
             {
+                // Boss custom pour difficulte 6+ a l'etage 6 : "The Winner"
+                if (etage >= 6 && MonstreBuilder.CurrentDifficulty.Level >= 6)
+                {
+                    result.Add(_builder.CreerMonstre("The Winner"));
+                    return result;
+                }
                 if (etage >= 5)
                 {
                     result.Add(_builder.CreerBossFinal());
@@ -438,9 +479,35 @@ namespace ProjetDelta.Data.DataLoader
                 return result;
             }
 
-            // Combats standards : 1 monstre par defaut (le double combat est gere via TreasureFightRoom uniquement)
-            result.Add(_builder.CreerMonstreParTiers(tiersPool));
+            // Combats standards : base + bonus
+            for (int i = 0; i < standardCount; i++)
+            {
+                var m = _builder.CreerMonstreParTiers(tiersPool);
+                if (tierScale != 1f) m = _builder.CreerMonstreParTierScaled(m.Tier, tierScale);
+                result.Add(m);
+            }
             return result;
+        }
+
+        private void AjouterArtefactsEtage6(Monstre monstre)
+        {
+            var dtos = ArtefactLoader.GetDtos();
+            var commons = dtos.Where(d => string.IsNullOrWhiteSpace(d.Rarity) || d.Rarity.Equals("common", StringComparison.OrdinalIgnoreCase)).ToList();
+            var rares = dtos.Where(d => d.Rarity != null && d.Rarity.Equals("rare", StringComparison.OrdinalIgnoreCase)).ToList();
+            var epics = dtos.Where(d => d.Rarity != null && d.Rarity.Equals("epic", StringComparison.OrdinalIgnoreCase)).ToList();
+            var rand = new Random();
+
+            IArtefact? Pick(List<ArtefactDto> pool)
+            {
+                if (pool.Count == 0) return null;
+                var dto = pool[rand.Next(pool.Count)];
+                return ArtefactLoader.CreerInstance(dto.Id ?? dto.Nom ?? "");
+            }
+
+            foreach (var art in new[] { Pick(commons), Pick(rares), Pick(epics) })
+            {
+                if (art != null) monstre.EquipArtefact(art);
+            }
         }
     }
 }

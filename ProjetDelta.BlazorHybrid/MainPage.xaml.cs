@@ -17,6 +17,7 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        this.HandlerChanged += OnHandlerChanged;
         AppDomain.CurrentDomain.FirstChanceException += OnFirstChanceException;
         // Exceptions globales -> overlay pour ne pas rester sur un écran gris
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
@@ -37,6 +38,35 @@ public partial class MainPage : ContentPage
     private void OnFirstChanceException(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
     {
         AppendLog("FirstChance", e.Exception.ToString());
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+#if WINDOWS
+        try { Application.Current?.Quit(); } catch { }
+#endif
+    }
+
+    private void OnHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        try
+        {
+            var window = this.GetParentWindow();
+            if (window != null)
+            {
+                window.Destroying -= OnWindowDestroying;
+                window.Destroying += OnWindowDestroying;
+            }
+        }
+        catch { }
+#endif
+    }
+
+    private void OnWindowDestroying(object? sender, EventArgs e)
+    {
+        try { Application.Current?.Quit(); } catch { }
     }
 
     protected override void OnAppearing()

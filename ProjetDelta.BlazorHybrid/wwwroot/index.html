@@ -24,11 +24,28 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="js/projetDeltaDnD.js"></script>
     <script>
         window.projetDeltaScrollLog = function (elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
             el.scrollTop = el.scrollHeight;
+        };
+        window.projetDeltaFocusRoot = function (elementId) {
+            const el = document.getElementById(elementId);
+            if (el && typeof el.focus === 'function') {
+                el.focus();
+            }
+        };
+        // Drag payload helper kept for potential future use; current fallback uses click-to-move.
+        window.projetDeltaDragPayload = function (ev) {
+            try {
+                if (!ev || !ev.dataTransfer) return;
+                const idx = ev.target?.getAttribute('data-idx');
+                ev.dataTransfer.setData('text/plain', idx ?? '0');
+                ev.dataTransfer.effectAllowed = 'move';
+                ev.dataTransfer.dropEffect = 'move';
+            } catch { }
         };
     </script>
 

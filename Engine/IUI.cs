@@ -15,9 +15,19 @@ namespace ProjetDelta.UI
         public string QuestionReponse(string question = "");
         public T ChoisirOption<T>(string titre, List<T> options, Func<T, string> optionToString);
         public T ChoisirOptionAvecConfirmation<T>(string titre, List<T> options, Func<T, string> optionToString);
-        public void GoNext(string prompt = "Appuie sur Entree pour continuer.");
+        public void GoNext(string prompt = "Continuer");
         public void UpdatePlayerState(UIPlayerState state);
         // public string QuestionReponseBans(string question = "", List<string> bans = new List<string>);
         public void TerminerLigne();
+    }
+
+    public interface IUILogTarget
+    {
+        void AddLogLine(IEnumerable<UILogSegment> segments);
+    }
+
+    public interface IDarkModeAware
+    {
+        void SetDarkMode(bool unlocked, bool enabled);
     }
 }

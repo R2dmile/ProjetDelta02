@@ -1,4 +1,5 @@
 using ProjetDelta.Player;
+using ProjetDelta.Data.DataClasses;
 using ProjetDelta.UI;
 using System;
 using System.Linq;
@@ -10,10 +11,16 @@ namespace ProjetDelta.Systemes
     public static class CommandHandler
     {
         private static Func<IEnumerable<Combattant>>? _currentOpponentsProvider;
+        private static ProfileData? _profile;
 
         public static void SetOpponentsProvider(Func<IEnumerable<Combattant>> provider)
         {
             _currentOpponentsProvider = provider;
+        }
+
+        public static void SetProfile(ProfileData profile)
+        {
+            _profile = profile;
         }
 
         public static void ClearOpponentsProvider()
@@ -52,6 +59,8 @@ namespace ProjetDelta.Systemes
                         var color = !string.IsNullOrWhiteSpace(dto?.Color)
                             ? dto!.Color!.Trim().ToLowerInvariant()
                             : (!string.IsNullOrWhiteSpace(a.Color) ? a.Color : "white");
+                        if (string.Equals(rarity, "legendary", StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(dto?.Color))
+                            color = "gold";
                         ui.AffichageBasicInteractif("- ", "white");
                         ui.AffichageBasicInteractif($"[{rarity}] ", color);
                         ui.AffichageBasicInteractif($"{a.Nom}", color);
@@ -73,6 +82,21 @@ namespace ProjetDelta.Systemes
                     ui.Afficher($"Stats : PV {joueur.PV}/{joueur.PVMax}, ATK {joueur.Attaque:0.##}, SPD {joueur.SPD:0.##}");
                     ui.Afficher($"Bonus loot : {joueur.LootDropBonusPct*100:0.#}%, Bonus or : {joueur.GoldBonusPct*100:0.#}%, XP bonus : {joueur.XpBonusPct*100:0.#}%");
                     ui.Afficher($"Or : {joueur.Argent}");
+                    return true;
+                case "darkmode":
+                case "dark":
+                    if (_profile == null || !_profile.DarkModeUnlocked)
+                    {
+                        ui.Afficher("Dark mode non debloque. Achete l'upgrade meta apres avoir debloque l'UI MAUI.");
+                        return true;
+                    }
+                    _profile.DarkModeEnabled = !_profile.DarkModeEnabled;
+                    ProfileLoader.Save(_profile);
+                    if (ui is IDarkModeAware darkUi)
+                    {
+                        darkUi.SetDarkMode(_profile.DarkModeUnlocked, _profile.DarkModeEnabled);
+                    }
+                    ui.Afficher($"Mode {( _profile.DarkModeEnabled ? "sombre" : "clair")} active.");
                     return true;
                 case "inspect":
                 case "ennemi":
@@ -111,6 +135,26 @@ namespace ProjetDelta.Systemes
                     ui.Afficher($"Distribution des points (restants: {joueur.PointsNonDepenses})");
                     joueur.DistribuerPoints(ui);
                     return true;
+                case var s when s.StartsWith("reorder"):
+                    {
+                        var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length >= 3 &&
+                            int.TryParse(parts[1], out var from) &&
+                            int.TryParse(parts[2], out var to))
+                        {
+                            if (joueur.ReorderArtefact(from, to, ui))
+                            {
+                                ui.Afficher("Ordre mis a jour.");
+                            }
+                            else
+                            {
+                                ui.Afficher("Reordonner a echoue (indices invalides).");
+                            }
+                            return true;
+                        }
+                        ui.Afficher("Utilisation : reorder <from> <to> (indices a partir de 1)");
+                        return true;
+                    }
                 default:
                     return false;
             }

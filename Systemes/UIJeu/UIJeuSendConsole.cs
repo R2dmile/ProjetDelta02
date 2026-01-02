@@ -43,10 +43,12 @@ namespace ProjetDelta.Systemes.UIJeu
                     segments.Add(new UILogSegment("\n", "white"));
                     segments.Add(new UILogSegment(combatData.NomAttaquant, artifactColor, Artefact: combatData.NomAttaquant, Owner: combatData.NomRecevant));
                     segments.Add(new UILogSegment(":", "white"));
-                    segments.Add(new UILogSegment(combatData.Message ?? combatData.NomRecevant, artifactColor, Artefact: combatData.NomAttaquant, Owner: combatData.NomRecevant));
+                    segments.Add(new UILogSegment(combatData.Message ?? combatData.NomRecevant, "white", Artefact: combatData.NomAttaquant, Owner: combatData.NomRecevant));
                     if (!string.IsNullOrWhiteSpace(combatData.HpCourant) && !string.IsNullOrWhiteSpace(combatData.HpTotal))
                     {
-                        segments.Add(new UILogSegment($" ({combatData.HpCourant}/{combatData.HpTotal}) pv", artifactColor));
+                        segments.Add(new UILogSegment(" (", "white"));
+                        segments.Add(new UILogSegment($"{combatData.HpCourant}/{combatData.HpTotal}", artifactColor));
+                        segments.Add(new UILogSegment(") pv", "white"));
                     }
                     break;
                 case TypeEvenement.Autre:
@@ -90,10 +92,12 @@ namespace ProjetDelta.Systemes.UIJeu
                 _ui.AffichageBasicInteractif("\n", "white");
                 _ui.AffichageBasicInteractif($"{combatData.NomAttaquant}", artifactColor);
                 _ui.AffichageBasicInteractif(":", "white");
-                _ui.AffichageBasicInteractif($"{combatData.Message ?? combatData.NomRecevant}", artifactColor);
+                _ui.AffichageBasicInteractif($"{combatData.Message ?? combatData.NomRecevant}", "white");
                 if (!string.IsNullOrWhiteSpace(combatData.HpCourant) && !string.IsNullOrWhiteSpace(combatData.HpTotal))
                 {
-                    _ui.AffichageBasicInteractif($" ({combatData.HpCourant}/{combatData.HpTotal}) pv", artifactColor);
+                    _ui.AffichageBasicInteractif(" (", "white");
+                    _ui.AffichageBasicInteractif($"{combatData.HpCourant}/{combatData.HpTotal}", artifactColor);
+                    _ui.AffichageBasicInteractif(") pv", "white");
                 }
                 _ui.TerminerLigne();
             }

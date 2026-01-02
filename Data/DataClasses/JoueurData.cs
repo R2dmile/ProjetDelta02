@@ -29,7 +29,7 @@ namespace ProjetDelta.Data.DataClasses
         public int PointsNonDepenses { get; set; } = 0;
         public Joueur ToJoueur()
         {
-            var j = new Joueur(Nom, BackgroundNom, ClasseNom, Niveau, Exp, Attributs.ToAttributs(), Stats, Argent, Etage, Difficulte, PointsNonDepenses);
+            var j = new Joueur(Nom, BackgroundNom, ClasseNom, Niveau, Exp, Attributs.ToAttributs(), Stats, Argent, Etage, Difficulte, PointsNonDepenses, appliquerAttributs: false);
             j.RoomName = RoomName;
             if (Artefacts != null && Artefacts.Count > 0)
             {
@@ -37,7 +37,7 @@ namespace ProjetDelta.Data.DataClasses
                 {
                     if (string.IsNullOrWhiteSpace(nom)) continue;
                     var art = ArtefactLoader.CreerInstance(nom);
-                    if (art != null) j.EquipArtefact(art);
+                    if (art != null) j.EquipArtefact(art, applyOnEquip: false);
                 }
             }
             return j;

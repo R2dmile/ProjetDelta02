@@ -67,7 +67,7 @@ namespace ProjetDelta.Donjon.Rooms
             ui.TerminerLigne();
 
             // Pause avant combat
-            ui.GoNext("Appuie sur Entree pour commencer le combat");
+            ui.GoNext("Commencer le combat");
 
             var combat = new Combat(joueur, _monstres, ui);
             combat.Demarrer();
@@ -77,7 +77,7 @@ namespace ProjetDelta.Donjon.Rooms
             }
             Console.WriteLine("Combat termine");
 
-            ui.GoNext("Appuie sur Entree pour voir les recompenses");
+            ui.GoNext("Voir les recompenses");
 
             // Recompenses
             int Triangulaire(int t)

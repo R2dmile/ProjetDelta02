@@ -1,0 +1,22 @@
+﻿
+{
+  "monstres": [
+    {
+      "nom": "The Winner",
+      "couleur": "gold",
+      "attributs": {
+        "intel": 5,
+        "force": 9999,
+        "constitution": 30,
+        "dex": 2,
+        "darkness": 5
+      },
+      "stats": {
+        "vie": 250,
+        "attaque": 99999,
+        "vitesse": 1
+      },
+      "tier": 7
+    }
+  ]
+}

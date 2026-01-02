@@ -18,5 +18,7 @@ namespace ProjetDelta.Data.DataClasses
         public bool BlazorUnlocked { get; set; } = false; // Ancien flag, conserve pour compat
         public bool MauiUnlocked { get; set; } = false;   // Upgrade payante pour UI MAUI/Blazor
         public bool UseBlazorUI { get; set; } = false;    // Pref par defaut au lancement
+        public bool DarkModeUnlocked { get; set; } = false; // Meta upgrade pour activer le dark mode
+        public bool DarkModeEnabled { get; set; } = false;  // Pref utilisateur
     }
 }

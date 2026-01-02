@@ -3,10 +3,11 @@
 @inject ProjetDelta.BlazorHybrid.Services.UIStateService State
 @inject ProjetDelta.BlazorHybrid.Services.GameRunner Runner
 @inject IJSRuntime JS
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Artefact</PageTitle>
 
-<div class="page-shell" style="@GetBackgroundStyle()">
+<div id="page-shell-root" class="page-shell @(State.DarkModeEnabled ? "dark-mode" : "")" style="@GetBackgroundStyle()" tabindex="0" @onkeydown="HandleKeyDown">
     <h1>Artefact</h1>
 
     @if (State.IsLoading)
@@ -25,24 +26,72 @@
             <button class="@GetTabClass(TabLog)" @onclick="() => SwitchTab(TabLog)">Log</button>
             <button class="@GetTabClass(TabInventory)" @onclick="() => SwitchTab(TabInventory)">Inventaire</button>
             <button class="@GetTabClass(TabStats)" @onclick="() => SwitchTab(TabStats)">Stats</button>
+            <button class="@GetTabClass(TabLevel)" @onclick="() => SwitchTab(TabLevel)">Level Up</button>
+            @if (State.DarkModeUnlocked)
+            {
+                <button class="tab-btn @(State.DarkModeEnabled ? "active" : "")" @onclick="ToggleDarkMode">Dark Mode</button>
+            }
         </div>
     }
 
-    @if (selectedTab == "inventory" && State.Player is not null)
+    @if (selectedTab == TabInventory && State.Player is not null)
     {
         <div class="panel">
             <h3>Inventaire</h3>
+
             @if (State.Player.Artefacts.Any())
             {
-                <ul class="artefact-list">
-                    @foreach (var art in State.Player.Artefacts)
+                @if (!string.IsNullOrWhiteSpace(reorderStatus))
+                {
+                    <p class="text-muted">@reorderStatus</p>
+                }
+
+                <ul class="artefact-list" style="touch-action:none;"
+                    @onpointerup="OnPointerUpMaybeDrop"
+                    @onpointercancel="@EndPointerDrag">
+
+                    @for (int i = 0; i < State.Player.Artefacts.Count; i++)
                     {
-                        <li>
-                            <button class="artefact-link" style="@GetArtefactStyle(art)" @onclick="@(()=>SelectArtefact(art))">@art.Nom</button>
+                        var idx = i; // capture locale pour les lambdas
+                        var art = State.Player.Artefacts[idx];
+
+                        <li class="@GetArtefactItemClass(idx)" data-index="@idx">
+
+                            <!-- Zone drag (handle): le nom -->
+                            <button class="artefact-link"
+                                    style="@GetArtefactStyle(art); touch-action:none;"
+                                    title="Glisser pour réordonner"
+                                    @onpointerdown="(e) => StartPointerDrag(idx, e)"
+                                    @onpointermove="OnPointerMoveDrag"
+                                    @onpointerup="OnPointerUpMaybeDrop"
+                                    @onpointercancel="@EndPointerDrag"
+                                    @onpointerdown:preventDefault="true"
+                                    @onclick="() => OnArtefactClick(art)">
+                                @art.Nom @(art.Count > 1 ? $"x{art.Count}" : "")
+                            </button>
+
                             <span class="badge" style="@GetRarityStyle(art.Rarity)">@art.Rarity</span>
+
+                            <!-- Icône description (ne doit pas drag) -->
+                            <button class="info-btn"
+                                    title="Description"
+                                    @onclick="() => SelectArtefact(art)"
+                                    @onclick:stopPropagation="true"
+                                    @onpointerdown:stopPropagation="true">
+                                i
+                            </button>
                         </li>
                     }
                 </ul>
+
+                @if (isPointerDown && draggedItem is not null)
+                {
+                    <div class="drag-ghost" style="@GetDragGhostStyle()">
+                        <span style="@GetArtefactStyle(draggedItem)">@draggedItem.Nom</span>
+                        <span class="ghost-badge">@draggedItem.Rarity</span>
+                    </div>
+                }
+
                 @if (selectedArtefact is not null)
                 {
                     <div class="artefact-card">
@@ -58,7 +107,7 @@
             }
         </div>
     }
-    else if (selectedTab == "stats" && State.Player is not null)
+    else if (selectedTab == TabStats && State.Player is not null)
     {
         var p = State.Player;
         <div class="panel">
@@ -66,6 +115,54 @@
             <p><strong>@p.Nom</strong> - @p.Classe (@p.Background) | Niveau @p.Niveau</p>
             <p>Etage: @p.Etage | Difficulté actuelle: @p.Difficulte</p>
             <p>PV: @p.PvCourant/@p.PvMax | ATK: @p.Attaque | VIT: @p.Vitesse | Or: @p.Argent</p>
+        </div>
+    }
+    else if (selectedTab == TabLevel && State.Player is not null)
+    {
+        <div class="panel">
+            <h3>Level Up</h3>
+            <p>Points disponibles : @State.Player.PointsNonDepenses</p>
+            @if (State.Player.PointsNonDepenses <= 0)
+            {
+                <p class="text-muted">Aucun level up disponible.</p>
+            }
+            else
+            {
+                <p class="text-muted">Distribution en cours : choisis ci-dessous.</p>
+
+                @if (State.Options.Any())
+                {
+                    <div class="btn-group-vertical">
+                        @foreach (var opt in State.Options)
+                        {
+                            <button class="btn btn-sm @(opt.Disabled ? "btn-secondary" : "btn-success")"
+                                    disabled="@opt.Disabled"
+                                    @onclick="@(()=>Select(opt.Key))">
+                                @opt.Key : @opt.Label
+                            </button>
+                        }
+                    </div>
+                }
+                else if (State.AwaitingText)
+                {
+                    <div class="mb-2" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                        <input @bind="textAnswer" placeholder="Votre reponse" />
+                        <button class="btn btn-primary btn-sm" @onclick="SubmitText">Valider</button>
+                        @if (State.BackEnabled)
+                        {
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="SubmitBack">@State.BackLabel</button>
+                        }
+                    </div>
+                }
+                else if (State.AwaitingNext)
+                {
+                    <button class="btn btn-warning btn-sm" @onclick="GoNext">@State.NextLabel</button>
+                }
+                else
+                {
+                    <p class="text-muted">En attente d'une interaction... (si vide, reviens plus tard ou change d'onglet).</p>
+                }
+            }
         </div>
     }
     else
@@ -138,11 +235,28 @@
     private bool started;
     private bool pendingScroll;
     private const string LogElementId = "log-container";
+    private const string RootElementId = "page-shell-root";
+
     private string selectedTab = TabLog;
     private UIArtefact? selectedArtefact;
+
     private const string TabLog = "log";
     private const string TabInventory = "inventory";
     private const string TabStats = "stats";
+    private const string TabLevel = "level";
+
+    // Drag & drop (pointer-based + JS elementFromPoint)
+    private bool isPointerDown;      // pointeur pressé
+    private bool isDragging;         // seuil dépassé -> drag réel
+    private double downX, downY;     // position initiale
+    private double lastX, lastY;     // suivi ghost
+    private int? dragStartIndex;     // index au pointerdown
+    private int? dragOverIndex;      // index survolé
+    private UIArtefact? draggedItem; // item déplacé
+    private const double DragThresholdPx = 6.0; // seuil clic vs drag
+    private string reorderStatus = string.Empty;
+
+    private bool levelUpEnqueued;
 
     protected override void OnInitialized()
     {
@@ -152,7 +266,11 @@
             InvokeAsync(StateHasChanged);
         };
         State.Options.CollectionChanged += (_, __) => InvokeAsync(StateHasChanged);
-        State.Changed += () => InvokeAsync(StateHasChanged);
+        State.Changed += () =>
+        {
+            MaybeEnqueueLevelUp();
+            InvokeAsync(StateHasChanged);
+        };
         StartGame();
     }
 
@@ -162,6 +280,11 @@
         {
             pendingScroll = false;
             await JS.InvokeVoidAsync("projetDeltaScrollLog", LogElementId);
+        }
+        if (firstRender)
+        {
+            try { await JS.InvokeVoidAsync("projetDeltaFocusRoot", RootElementId); }
+            catch { /* si le JS n'est pas charge, on ignore */ }
         }
     }
 
@@ -174,6 +297,7 @@
     }
 
     private void GoNext() => State.CompleteNext();
+
     private void SubmitBack()
     {
         State.SubmitText("back");
@@ -190,6 +314,15 @@
     private void SwitchTab(string tab)
     {
         selectedTab = tab;
+        if (selectedTab != TabLevel)
+        {
+            levelUpEnqueued = false;
+        }
+        if (selectedTab == TabLog)
+        {
+            pendingScroll = true;
+        }
+        MaybeEnqueueLevelUp();
         StateHasChanged();
     }
 
@@ -199,10 +332,120 @@
         StateHasChanged();
     }
 
+    private void StartPointerDrag(int index, PointerEventArgs e)
+    {
+        if (!State.CanReorder || State.Player is null) return;
+        if (index < 0 || index >= State.Player.Artefacts.Count) return;
+
+        isPointerDown = true;
+        isDragging = false;
+
+        draggedItem = State.Player.Artefacts[index];
+        dragStartIndex = index;
+        dragOverIndex = index;
+
+        downX = lastX = e.ClientX;
+        downY = lastY = e.ClientY;
+
+        reorderStatus = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task OnPointerMoveDrag(PointerEventArgs e)
+    {
+        if (!isPointerDown || State.Player is null || draggedItem is null) return;
+
+        lastX = e.ClientX;
+        lastY = e.ClientY;
+
+        if (!isDragging)
+        {
+            var dx = e.ClientX - downX;
+            var dy = e.ClientY - downY;
+            if ((dx * dx + dy * dy) < (DragThresholdPx * DragThresholdPx))
+            {
+                StateHasChanged();
+                return;
+            }
+            isDragging = true;
+        }
+
+        int overIndex;
+        try
+        {
+            overIndex = await JS.InvokeAsync<int>("projetDeltaDnD.getIndexFromPoint", e.ClientX, e.ClientY);
+        }
+        catch
+        {
+            return;
+        }
+
+        var list = State.Player.Artefacts;
+        if (overIndex < 0 || overIndex >= list.Count)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        var from = IndexOfArtefact(list, draggedItem);
+        if (from < 0 || from == overIndex)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        State.ApplyLocalReorder(from, overIndex);
+        dragOverIndex = overIndex;
+        StateHasChanged();
+    }
+
+    private void OnPointerUpMaybeDrop(PointerEventArgs e)
+    {
+        if (isPointerDown && !isDragging && draggedItem is not null)
+        {
+            SelectArtefact(draggedItem);
+        }
+
+        EndPointerDrag();
+    }
+
+    private void EndPointerDrag()
+    {
+        if (!isPointerDown)
+            return;
+
+        if (isDragging && State.CanReorder && State.Player is not null && draggedItem is not null && dragStartIndex is not null)
+        {
+            var list = State.Player.Artefacts;
+            var finalIndex = IndexOfArtefact(list, draggedItem);
+            var startIndex = dragStartIndex.Value;
+
+            if (finalIndex >= 0 && finalIndex != startIndex)
+            {
+                State.EnqueueCommand($"reorder {startIndex + 1} {finalIndex + 1}");
+                reorderStatus = string.Empty; // pas de texte après un drag réussi
+            }
+        }
+
+        isPointerDown = false;
+        isDragging = false;
+        draggedItem = null;
+        dragStartIndex = null;
+        dragOverIndex = null;
+
+        StateHasChanged();
+    }
+
+    private void OnArtefactClick(UIArtefact art)
+    {
+        // Le clic simple est géré par OnPointerUpMaybeDrop (si pas de drag).
+    }
+
     private void ShowLogArtefact(ProjetDelta.BlazorHybrid.Services.UIStateService.MessageSegment seg)
     {
         if (string.IsNullOrWhiteSpace(seg.Artefact))
             return;
+
         var playerArt = State.Player?.Artefacts.FirstOrDefault(a => a.Nom.Equals(seg.Artefact, StringComparison.OrdinalIgnoreCase));
         if (playerArt != null)
         {
@@ -211,7 +454,7 @@
         }
         else
         {
-            selectedArtefact = new UIArtefact(seg.Artefact, $"Porteur: {seg.Owner ?? "inconnu"}", "inconnu", seg.Color ?? "white");
+            selectedArtefact = new UIArtefact(seg.Artefact, $"Porteur: {seg.Owner ?? "inconnu"}", "inconnu", seg.Color ?? "white", 1);
             selectedTab = TabInventory;
         }
         StateHasChanged();
@@ -227,6 +470,16 @@
     {
         var color = ResolveColorHex(art.Color);
         return $"color:{color};";
+    }
+
+    private string GetDragGhostStyle()
+    {
+        var x = lastX + 14;
+        var y = lastY + 14;
+        return $"position:fixed; left:{x}px; top:{y}px; pointer-events:none; z-index:9999; " +
+               $"background:rgba(15,23,42,0.90); border:1px solid rgba(148,163,184,0.35); " +
+               $"border-radius:10px; padding:6px 10px; box-shadow:0 10px 30px rgba(0,0,0,0.25); " +
+               $"backdrop-filter: blur(6px);";
     }
 
     private string ResolveColorHex(string? rawColor)
@@ -253,6 +506,7 @@
         var raw = rarity?.ToLowerInvariant() ?? "common";
         var color = raw switch
         {
+            "legendary" => "#d97706",
             "epic" => "#c084fc",
             "rare" => "#60a5fa",
             "special" => "#22d3ee",
@@ -265,17 +519,91 @@
     private string GetBackgroundStyle()
     {
         var floor = State.Player?.Etage ?? 1;
-        var bg = floor switch
+        var (bg, fg) = floor switch
         {
-            <= 1 => "#f8fafc",
-            2 => "#e5e7eb",
-            3 => "#f3e8ff",
-            4 => "#fed7aa",
-            _ => "#0f172a"
+            <= 1 => ("linear-gradient(135deg,#f8fafc,#e2e8f0)", "#0b1120"),
+            2 => ("linear-gradient(135deg,#e5e7eb,#cbd5e1)", "#0b1120"),
+            3 => ("linear-gradient(135deg,#f3e8ff,#e0f2fe)", "#0b1120"),
+            4 => ("linear-gradient(135deg,#fff7ed,#fed7aa)", "#111827"),
+            _ => ("linear-gradient(135deg,#111827,#0f172a)", "#e2e8f0")
         };
-        var fg = floor >= 5 ? "#e2e8f0" : "#0b1120";
-        return $"background:{bg}; color:{fg}; min-height:100vh; padding:1rem;";
+        var texture = "repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 12px, transparent 12px, transparent 24px)";
+        return $"background:{texture}, {bg}; color:{fg}; min-height:100vh; padding:1rem;";
     }
 
     private string GetTabClass(string tab) => $"tab-btn {(selectedTab == tab ? "active" : "")}";
+
+    private string GetArtefactItemClass(int index)
+    {
+        var classes = new List<string> { "artefact-item" };
+        if (isDragging && dragOverIndex == index) classes.Add("drag-over");
+
+        if (isDragging && draggedItem != null && State.Player != null)
+        {
+            var idx = IndexOfArtefact(State.Player.Artefacts, draggedItem);
+            if (idx == index) classes.Add("dragging");
+        }
+
+        return string.Join(" ", classes);
+    }
+
+    private void MaybeEnqueueLevelUp()
+    {
+        var points = State.Player?.PointsNonDepenses ?? 0;
+        if (points <= 0)
+        {
+            levelUpEnqueued = false;
+            return;
+        }
+        if (selectedTab == TabLevel && !levelUpEnqueued)
+        {
+            levelUpEnqueued = true;
+            State.EnqueueCommand("levelup");
+        }
+    }
+
+    private void StartLevelUpCommand()
+    {
+        if ((State.Player?.PointsNonDepenses ?? 0) <= 0) return;
+        levelUpEnqueued = true;
+        State.EnqueueCommand("levelup");
+    }
+
+    private void ToggleDarkMode()
+    {
+        State.SetDarkMode(State.DarkModeUnlocked, !State.DarkModeEnabled);
+        State.EnqueueCommand("darkmode");
+    }
+
+    private int IndexOfArtefact(IReadOnlyList<UIArtefact> list, UIArtefact target)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (ReferenceEquals(list[i], target)) return i;
+            // fallback si instances changent
+            if (string.Equals(list[i].Nom, target.Nom, StringComparison.OrdinalIgnoreCase)) return i;
+        }
+        return -1;
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        // Pas de hotkeys pendant une saisie texte ou un prompt "next"
+        if (State.AwaitingText || State.AwaitingNext) return;
+        if (!State.Options.Any()) return;
+
+        var key = e.Key?.Trim();
+        if (string.IsNullOrWhiteSpace(key)) return;
+
+        var lower = key.ToLowerInvariant();
+        // on garde uniquement une touche (digit ou lettre)
+        if (lower.Length == 1)
+        {
+            var match = State.Options.FirstOrDefault(o => o.Key.Equals(lower, StringComparison.OrdinalIgnoreCase));
+            if (match != null && !match.Disabled)
+            {
+                Select(match.Key);
+            }
+        }
+    }
 }

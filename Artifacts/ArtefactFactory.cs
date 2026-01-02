@@ -1,11 +1,30 @@
 using ProjetDelta.Data.DataClasses;
 using ProjetDelta.Data.DataLoader;
 using ProjetDelta.Player;
+using System.Runtime.CompilerServices;
 
 namespace ProjetDelta.Artifacts
 {
     public static class ArtefactFactory
     {
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> DamageMultHandlers = new();
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> PoisonHandlers = new();
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> ThornsHandlers = new();
+        private static readonly ConditionalWeakTable<Combattant, Dictionary<string, float>> SpeedPctApplied = new();
+        private static readonly ConditionalWeakTable<Combattant, Dictionary<string, float>> XpBonusApplied = new();
+        private static readonly ConditionalWeakTable<Combattant, Dictionary<string, float>> GoldBonusApplied = new();
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> XpFlatHandlers = new();
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> ShieldPctHandlers = new();
+        private static readonly ConditionalWeakTable<Combattant, HashSet<string>> SpecialShredHandlers = new();
+        private class PrudentTalismanState
+        {
+            public bool Attached;
+            public int ChargesConfigured;
+            public int ChargesLeft;
+        }
+        private static readonly ConditionalWeakTable<Combattant, PrudentTalismanState> PrudentStates = new();
+        private static readonly HashSet<string> SpecialArtefactNames = BuildSpecialArtefactNames();
+
         public static IArtefact FromDto(ArtefactDto dto)
         {
             var type = dto.Type?.Trim().ToLowerInvariant() ?? "";
@@ -84,12 +103,22 @@ namespace ProjetDelta.Artifacts
             return new ArtefactBuilder()
                 .AvecNom(nom)
                 .AvecDescription(desc ?? $"+{bonus} degats plats sur chaque attaque.")
-                .OnAttack((Combattant source, Combattant cible, ref float degats) =>
+                .OnEquip(bearer =>
                 {
-                    var avant = degats;
-                    var scaled = bonus * source.ArtefactDamageMult;
-                    degats += scaled;
-                    source.LogArtefact(nom, $"{nom} sur {cible.Nom} ajoute +{MathF.Round(scaled,2)} degats ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)})", 0, false);
+                    var attached = PoisonHandlers.GetOrCreateValue(bearer);
+                    if (attached.Contains(nom)) return;
+                    attached.Add(nom);
+
+                    bearer.OnAttack += (Combattant cible, ref float degats) =>
+                    {
+                        var count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (count <= 0) return;
+                        var avant = degats;
+                        var scaled = bonus * count * bearer.ArtefactDamageMult;
+                        degats += scaled;
+                        var suffix = count > 1 ? $" x{count}" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} sur {cible.Nom} ajoute +{MathF.Round(scaled,2)} degats ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)})", 0, false);
+                    };
                 })
                 .Build();
         }
@@ -153,15 +182,32 @@ namespace ProjetDelta.Artifacts
 
         private static IArtefact BuildBouclier(string nom, string? desc, float pct)
         {
+            // Interprete la valeur comme des points de resistance (res) : reduction = res / (100 + res)
+            // Pour compat desc anciennes < 1 (ex 0.1 = 10%), on convertit en points *100 => 10 pts ~ 9.1% DR
+            float pointsParArtefact = pct <= 1 ? pct * 100f : pct;
             return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? $"Absorbe {MathF.Round(pct * 100, 0)}% des degats recus.")
-                .OnDamageTaken((Combattant bearer, ref float degats) =>
+                .AvecDescription(desc ?? $"Bouclier : {pointsParArtefact:0.#} points de resistance (DR = res/(100+res), lineaire sur les copies).")
+                .OnEquip(bearer =>
                 {
-                    var reduction = degats * pct;
-                    degats -= reduction;
-                    if (reduction > 0)
-                        bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) absorbe {MathF.Round(reduction, 2)} degats", 0, false);
+                    var attached = ShieldPctHandlers.GetOrCreateValue(bearer);
+                    if (attached.Contains(nom)) return;
+                    attached.Add(nom);
+
+                    bearer.OnDamageTaken += (ref float degats) =>
+                    {
+                        var count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (count <= 0) return;
+                        float totalPoints = pointsParArtefact * count;
+                        float reductionPct = totalPoints / (100f + totalPoints);
+                        var reduction = degats * reductionPct;
+                        degats -= reduction;
+                        if (reduction > 0)
+                        {
+                            var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                            bearer.LogArtefact(nom, $"{nom}{suffix} absorbe {MathF.Round(reduction, 2)} degats (res {totalPoints:0.#}, DR {reductionPct*100:0.#}%)", 0, false);
+                        }
+                    };
                 })
                 .Build();
         }
@@ -200,17 +246,25 @@ namespace ProjetDelta.Artifacts
                 .AvecDescription(desc ?? $"Renvoie {MathF.Round(pct*100,0)}% + {flat} degats a l'attaquant quand tu es touche.")
                 .OnEquip(bearer =>
                 {
+                    var attached = ThornsHandlers.GetOrCreateValue(bearer);
+                    if (attached.Contains(nom)) return;
+                    attached.Add(nom);
+
                     bearer.OnTakeDamage += (degatsRecus, attaquant) =>
                     {
-                        if (attaquant == null || !attaquant.EstVivant()) return;
-                        var renvoi = (flat + degatsRecus * pct) * bearer.ArtefactDamageMult;
+                        var cible = attaquant;
+                        if (cible == null || !cible.EstVivant()) return;
+                        var count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (count <= 0) return;
+                        var renvoi = ((flat * count) + degatsRecus * pct * count) * bearer.ArtefactDamageMult;
                         renvoi = MathF.Round(renvoi, 2);
                         if (renvoi <= 0) return;
 
-                        bearer.LogArtefact(nom, $"{nom} renvoie {renvoi} degats a {attaquant.Nom}", 0, false);
+                        var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} renvoie {renvoi} degats imparables a {cible.Nom}", 0, false);
 
                         // Degats directs sans declencher d'autres handlers.
-                        attaquant.SubirDegatsSansEffets(renvoi);
+                        cible.SubirDegatsSansEffets(renvoi);
                     };
                 })
                 .Build();
@@ -231,38 +285,26 @@ namespace ProjetDelta.Artifacts
 
         private static IArtefact BuildSpeedPct(string nom, string? desc, float pct)
         {
-            // Cas special "Cape du vent" : calcul lineaire sur le nombre de capes possedees (ex: 17 capes = 170% SPD)
-            bool isCapeVent = nom.Equals("Cape du vent", StringComparison.OrdinalIgnoreCase) || nom.Equals("cape_vent", StringComparison.OrdinalIgnoreCase);
-            var builder = new ArtefactBuilder()
+            return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,0)}% vitesse (SPD)");
-
-            if (isCapeVent)
-            {
-                builder.OnEquip(bearer =>
+                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,0)}% vitesse (SPD) par copie (effet lineaire)")
+                .OnEquip(bearer =>
                 {
-                    // N'ajouter le hook qu'une seule fois
-                    if (bearer.Artefacts.Any(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase))) return;
-                    bearer.OnCombatStart += () =>
+                    var applied = SpeedPctApplied.GetOrCreateValue(bearer);
+                    applied.TryGetValue(nom, out var prev);
+                    // inclure la copie en cours d'equipement
+                    int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) + 1;
+                    float desired = pct * count;
+                    float delta = desired - prev;
+                    if (MathF.Abs(delta) > 0.0001f)
                     {
-                        int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
-                        if (count <= 0) return;
-                        float totalPct = pct * count;
-                        bearer.AddSpeedBonus(0, totalPct);
-                        bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) augmente la vitesse de +{MathF.Round(totalPct*100,0)}% (x{count})", 0, false);
-                    };
-                });
-            }
-            else
-            {
-                builder.OnCombatStart(bearer =>
-                {
-                    bearer.AddSpeedBonus(0, pct);
-                    bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) augmente la vitesse de +{MathF.Round(pct*100,0)}%", 0, false);
-                });
-            }
-
-            return builder.Build();
+                        bearer.AddSpeedBonus(0, delta);
+                        applied[nom] = desired;
+                        var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} porte la vitesse totale a +{MathF.Round(desired*100,0)}% SPD", 0, false);
+                    }
+                })
+                .Build();
         }
 
         private static IArtefact BuildDamageMultiplier(string nom, string? desc, float pct)
@@ -270,11 +312,22 @@ namespace ProjetDelta.Artifacts
             return new ArtefactBuilder()
                 .AvecNom(nom)
                 .AvecDescription(desc ?? $"+{MathF.Round(pct*100,0)}% degats sur les attaques.")
-                .OnAttack((Combattant source, Combattant cible, ref float degats) =>
+                .OnEquip(bearer =>
                 {
-                    var avant = degats;
-                    degats *= (1 + pct);
-                    source.LogArtefact(nom, $"{nom} augmente les degats ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)})", 0, false);
+                    var attached = DamageMultHandlers.GetOrCreateValue(bearer);
+                    if (attached.Contains(nom)) return;
+                    attached.Add(nom);
+
+                    bearer.OnAttack += (Combattant cible, ref float degats) =>
+                    {
+                        var count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (count <= 0) return;
+                        var avant = degats;
+                        var bonusPct = pct * count;
+                        degats *= (1 + bonusPct);
+                        var suffix = count > 1 ? $" x{count}" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} augmente les degats ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)})", 0, false);
+                    };
                 })
                 .Build();
         }
@@ -407,6 +460,8 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bearer.AddLootDropBonus(pct);
+                    var total = bearer.LootDropBonusPct * 100f;
+                    bearer.LogArtefact(nom, $"{nom} augmente la chance de loot a {MathF.Round(total,1)}%", 0, false);
                 })
                 .Build();
         }
@@ -415,10 +470,21 @@ namespace ProjetDelta.Artifacts
         {
             return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,1)}% d'or gagne sur les recompenses")
+                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,1)}% d'or gagne sur les recompenses par copie (effet lineaire)")
                 .OnEquip(bearer =>
                 {
-                    bearer.AddGoldBonus(pct);
+                    var applied = GoldBonusApplied.GetOrCreateValue(bearer);
+                    applied.TryGetValue(nom, out var prev);
+                    int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) + 1;
+                    float desired = pct * count;
+                    float delta = desired - prev;
+                    if (MathF.Abs(delta) > 0.0001f)
+                    {
+                        bearer.AddGoldBonus(delta);
+                        applied[nom] = desired;
+                        var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} porte le bonus or a +{MathF.Round(desired*100,1)}%", 0, false);
+                    }
                 })
                 .Build();
         }
@@ -473,17 +539,36 @@ namespace ProjetDelta.Artifacts
         {
             return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,1)}% d'XP gagnee" + (flatOnWin > 0 ? $" et +{flatOnWin} XP apres chaque combat" : ""))
+                .AvecDescription(desc ?? $"+{MathF.Round(pct*100,1)}% d'XP gagnee par copie" + (flatOnWin > 0 ? $" et +{flatOnWin} XP apres chaque combat (lineaire)" : ""))
                 .OnEquip(bearer =>
                 {
-                    bearer.AddXpBonus(pct);
+                    var applied = XpBonusApplied.GetOrCreateValue(bearer);
+                    applied.TryGetValue(nom, out var prev);
+                    int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) + 1;
+                    float desired = pct * count;
+                    float delta = desired - prev;
+                    if (MathF.Abs(delta) > 0.0001f)
+                    {
+                        bearer.AddXpBonus(delta);
+                        applied[nom] = desired;
+                        var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} porte le bonus XP a +{MathF.Round(desired*100,1)}%", 0, false);
+                    }
+
                     if (flatOnWin > 0)
                     {
+                        var hooks = XpFlatHandlers.GetOrCreateValue(bearer);
+                        if (hooks.Contains(nom)) return;
+                        hooks.Add(nom);
                         bearer.OnCombatEnd += () =>
                         {
                             if (bearer is Joueur j)
                             {
-                                j.GagnerExperience((int)flatOnWin);
+                                int c = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                                if (c <= 0) return;
+                                var gain = (int)(flatOnWin * c);
+                                j.GagnerExperience(gain);
+                                j.LogArtefact(nom, $"{nom} ajoute +{gain} XP apres le combat (x{c})", 0, false);
                             }
                         };
                     }
@@ -609,9 +694,12 @@ namespace ProjetDelta.Artifacts
                 {
                     bearer.OnAttack += (Combattant cible, ref float degats) =>
                     {
-                        bonusAccumule += flatGain;
-                        bearer.AddSpeedBonus(flatGain, 0);
-                        bearer.LogArtefact(nom, $"{nom} ({bearer.Nom}) ajoute +{flatGain} SPD (total +{bonusAccumule})", 0, false);
+                        int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        float inc = flatGain * MathF.Max(1, count);
+                        bonusAccumule += inc;
+                        bearer.AddSpeedBonus(inc, 0);
+                        var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                        bearer.LogArtefact(nom, $"{nom}{suffix} ajoute +{inc} SPD ce combat (total +{bonusAccumule})", 0, false);
                     };
                     bearer.OnCombatEnd += () =>
                     {
@@ -701,16 +789,33 @@ namespace ProjetDelta.Artifacts
                 .AvecDescription(desc ?? "La premiere fois qu'un coup te touche dans un combat, il est reduit de 50%.")
                 .OnEquip(bearer =>
                 {
-                    bool consumed = false;
-                    bearer.OnDamageTaken += (ref float degats) =>
+                    var state = PrudentStates.GetOrCreateValue(bearer);
+                    // chaque copie ajoute une charge de mitigation
+                    state.ChargesConfigured = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) + 1;
+                    state.ChargesLeft = state.ChargesConfigured;
+
+                    if (!state.Attached)
                     {
-                        if (consumed) return;
-                        consumed = true;
-                        var avant = degats;
-                        degats *= 0.5f;
-                        bearer.LogArtefact(nom, $"{nom} amortit le premier coup ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)})", 0, false);
-                    };
-                    bearer.OnCombatEnd += () => consumed = false;
+                        state.Attached = true;
+                        void ResetCharges()
+                        {
+                            state.ChargesLeft = state.ChargesConfigured;
+                        }
+
+                        bearer.OnDamageTaken += (ref float degats) =>
+                        {
+                            if (state.ChargesLeft <= 0) return;
+                            state.ChargesLeft--;
+                            var avant = degats;
+                            degats *= 0.5f;
+                            var suffix = state.ChargesLeft > 0 ? $" (charges restantes : {state.ChargesLeft})" : string.Empty;
+                            bearer.LogArtefact(nom, $"{nom} amortit un coup ({MathF.Round(avant,2)} -> {MathF.Round(degats,2)}){suffix}", 0, false);
+                        };
+                        bearer.OnCombatStart += ResetCharges;
+                        bearer.OnCombatEnd += ResetCharges;
+                    }
+
+                    bearer.LogArtefact(nom, $"{nom} prepare {state.ChargesConfigured} blocage(s) a 50% pour ce combat", 0, false);
                 })
                 .Build();
         }
@@ -763,6 +868,9 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bearer.AddBurnMultiplier(add);
+                    int count = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase)) + 1;
+                    var suffix = count > 1 ? $" (x{count})" : string.Empty;
+                    bearer.LogArtefact(nom, $"{nom}{suffix} amplifie les brulures : +{MathF.Round(add*100,0)}% multiplicateur applique", 0, false);
                 })
                 .Build();
         }
@@ -781,7 +889,7 @@ namespace ProjetDelta.Artifacts
                         if (burn <= 0) return;
                         // infliger un tick supplementaire de brulure immediatement
                         attaquant.SubirDegatsSansEffets(burn);
-                        bearer.LogArtefact(nom, $"{nom} declenche une brulure supplémentaire sur {attaquant.Nom} (-{MathF.Round(burn,2)})", 0, false);
+                        bearer.LogArtefact(nom, $"{nom} declenche une brulure supplementaire sur {attaquant.Nom} (-{MathF.Round(burn,2)})", 0, false);
                     };
                 })
                 .Build();
@@ -1057,16 +1165,27 @@ namespace ProjetDelta.Artifacts
             return new ArtefactBuilder()
                 .AvecNom(nom)
                 .AvecDescription(desc ?? "A chaque attaque, inflige 1 degat imparable par artefact special possede.")
-                .OnAttack((Combattant source, Combattant cible, ref float degats) =>
+                .OnEquip(bearer =>
                 {
-                    int countSpecial = source.Artefacts.Count(a =>
-                        ArtefactLoader.GetDtos().Any(d =>
-                            (d.Id ?? d.Nom ?? "").Equals(a.Nom, StringComparison.OrdinalIgnoreCase) &&
-                            d.Rarity != null && d.Rarity.Equals("special", StringComparison.OrdinalIgnoreCase)));
-                    if (countSpecial <= 0) return;
-                    var dmg = countSpecial;
-                    cible.SubirDegatsSansEffets(dmg);
-                    source.LogArtefact(nom, $"{nom} transperce {cible.Nom} pour {dmg} degats imparables (specials:{countSpecial})", 0, false);
+                    var attached = SpecialShredHandlers.GetOrCreateValue(bearer);
+                    if (attached.Contains(nom)) return;
+                    attached.Add(nom);
+
+                    var specialsNow = bearer.Artefacts.Count(a => IsSpecialArtefact(a.Nom));
+                    bearer.LogArtefact(nom, $"{nom} s'active : {specialsNow} artefact(s) speciaux detects", 0, false);
+
+                    bearer.OnAttack += (Combattant cible, ref float degats) =>
+                    {
+                        int countCachet = bearer.Artefacts.Count(a => a.Nom.Equals(nom, StringComparison.OrdinalIgnoreCase));
+                        if (countCachet <= 0) return;
+                        int countSpecial = bearer.Artefacts.Count(a => IsSpecialArtefact(a.Nom));
+                        if (countSpecial <= 0) return;
+                        var dmg = countSpecial * countCachet * bearer.ArtefactDamageMult;
+                        dmg = MathF.Round(dmg, 2);
+                        var suffix = countCachet > 1 ? $" (x{countCachet})" : string.Empty;
+                        cible.SubirDegatsSansEffets(dmg);
+                        bearer.LogArtefact(nom, $"{nom}{suffix} transperce {cible.Nom} pour {dmg} degats imparables (specials:{countSpecial})", 0, false);
+                    };
                 })
                 .Build();
         }
@@ -1187,7 +1306,9 @@ namespace ProjetDelta.Artifacts
                 {
                     // petit boost aux soins entrants en reutilisant AddLootBonus? Non -> via OnTakeDamage hook impossible.
                     // On applique un bonus global de 5% sur les soins via AddStatBonus sur HP max pour simuler une meilleure sustain.
-                    bearer.AddStatBonus(bearer.PVMax * 0.05f, 0, 0);
+                    var bonus = bearer.PVMax * 0.05f;
+                    bearer.AddStatBonus(bonus, 0, 0);
+                    bearer.LogArtefact(nom, $"{nom} renforce ta resi : +{MathF.Round(bonus,2)} PV max (bonus defensif)", 0, false);
                 })
                 .Build();
         }
@@ -1299,7 +1420,9 @@ namespace ProjetDelta.Artifacts
                 {
                     var avant = degats;
                     degats *= 1.3f;
-                    bearer.LogArtefact(nom, $"{nom} frappe fort : {MathF.Round(avant,2)} -> {MathF.Round(degats,2)}", 0, false);
+                    var apres = degats;
+                    // Log immédiatement (avant le log de degats finaux) pour l'ordre attendu
+                    bearer.LogArtefact(nom, $"{nom} frappe fort : {MathF.Round(avant,2)} -> {MathF.Round(apres,2)}", 0, false);
                 })
                 .OnDamageTaken((Combattant bearer, ref float degats) =>
                 {
@@ -1357,10 +1480,11 @@ namespace ProjetDelta.Artifacts
         {
             return new ArtefactBuilder()
                 .AvecNom(nom)
-                .AvecDescription(desc ?? "Ajoute un roll supplémentaire d'or ET d'artefact dans chaque salle tresor.")
+                .AvecDescription(desc ?? "Ajoute un roll supplementaire d'or ET d'artefact dans chaque salle tresor.")
                 .OnEquip(bearer =>
                 {
                     bearer.AddTreasureOverload(1);
+                    bearer.LogArtefact(nom, $"{nom} surcharge les coffres : roll tresor +1 (total {bearer.TreasureOverloadStacks})", 0, false);
                 })
                 .Build();
         }
@@ -1373,6 +1497,7 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bearer.AddAttributeBonus(new AttributsDto { Intel = val });
+                    bearer.LogArtefact(nom, $"{nom} octroie +{val} INT", 0, false);
                 })
                 .Build();
         }
@@ -1393,6 +1518,7 @@ namespace ProjetDelta.Artifacts
                 .OnEquip(bearer =>
                 {
                     bearer.AddAttributeBonus(bonus);
+                    bearer.LogArtefact(nom, $"{nom} offre +{bonus.Force} FOR, +{bonus.Dex} DEX, +{bonus.Constitution} CON, +{bonus.Intel} INT", 0, false);
                 })
                 .Build();
         }
@@ -1404,6 +1530,8 @@ namespace ProjetDelta.Artifacts
 
             var type = dto.Type?.Trim().ToLowerInvariant() ?? "";
 
+            var rarity = dto.Rarity?.Trim().ToLowerInvariant();
+            if (rarity == "legendary") return "gold";
             if (type.Contains("burn") || type.Contains("pyro") || type.Contains("fire"))
                 return "orange";
             if (type.Contains("heal") || type.Contains("regen"))
@@ -1436,6 +1564,32 @@ namespace ProjetDelta.Artifacts
             return "green";
         }
 
+        private static HashSet<string> BuildSpecialArtefactNames()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var d in ArtefactLoader.GetDtos())
+            {
+                if (!string.Equals(d.Rarity, "special", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (!string.IsNullOrWhiteSpace(d.Id))
+                    set.Add(d.Id.Trim());
+                if (!string.IsNullOrWhiteSpace(d.Nom))
+                    set.Add(d.Nom.Trim());
+            }
+            return set;
+        }
+
+        private static bool IsSpecialArtefact(string nom)
+        {
+            if (string.IsNullOrWhiteSpace(nom)) return false;
+            if (SpecialArtefactNames.Contains(nom)) return true;
+
+            var dto = ArtefactLoader.GetDtos().FirstOrDefault(d =>
+                string.Equals(d.Id ?? string.Empty, nom, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(d.Nom ?? string.Empty, nom, StringComparison.OrdinalIgnoreCase));
+            return dto != null && string.Equals(dto.Rarity, "special", StringComparison.OrdinalIgnoreCase);
+        }
+
         private static IArtefact ApplyColor(IArtefact artefact, string color)
         {
             if (artefact is TriggerArtefact trigger)
@@ -1446,3 +1600,5 @@ namespace ProjetDelta.Artifacts
         }
     }
 }
+
+

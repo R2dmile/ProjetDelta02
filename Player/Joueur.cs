@@ -35,7 +35,7 @@ namespace ProjetDelta.Player
             return $"Nom: {_nom}, Niveau: {_niveau}";
         }
 
-        public Joueur(string nom, Background background, Classe classe, Stats stats, int niveau = 1, int exp = 0, int argent = 0, int etage = 1, string difficulte = "Normal", int pointsNonDepenses = 0)
+        public Joueur(string nom, Background background, Classe classe, Stats stats, int niveau = 1, int exp = 0, int argent = 0, int etage = 1, string difficulte = "Normal", int pointsNonDepenses = 0, bool appliquerAttributs = true)
         {
             _nom = nom;
             _niveau = niveau;
@@ -52,10 +52,13 @@ namespace ProjetDelta.Player
             _classeNom = classe.Nom;
             _stats = stats;
             _couleur = "lime";
-            _stats.AjusterParAttributs(_attributs);
+            if (appliquerAttributs)
+            {
+                _stats.AjusterParAttributs(_attributs);
+            }
         }
 
-        public Joueur(string nom, string backgroundNom, string classeNom, int niveau, int exp, Attributs attributs, Stats stats, int argent = 0, int etage = 1, string difficulte = "Normal", int pointsNonDepenses = 0)
+        public Joueur(string nom, string backgroundNom, string classeNom, int niveau, int exp, Attributs attributs, Stats stats, int argent = 0, int etage = 1, string difficulte = "Normal", int pointsNonDepenses = 0, bool appliquerAttributs = true)
         {
             _nom = nom;
             _niveau = niveau;
@@ -70,7 +73,10 @@ namespace ProjetDelta.Player
             _classeNom = classeNom;
             _stats = stats;
             _couleur = "lime";
-            _stats.AjusterParAttributs(_attributs);
+            if (appliquerAttributs)
+            {
+                _stats.AjusterParAttributs(_attributs);
+            }
         }
 
         public JoueurData ToData()
@@ -168,6 +174,38 @@ namespace ProjetDelta.Player
                     ui?.Afficher($"Points disponibles : {_pointsNonDepenses}. Utilise la commande 'levelup' pour les depenser quand tu veux.");
                 }
             }
+        }
+
+        public bool ReorderArtefact(int fromIndex1Based, int toIndex1Based, IUI? ui = null)
+        {
+            var from = fromIndex1Based - 1;
+            var to = toIndex1Based - 1;
+            // Regrouper par nom (ordre de premiere apparition)
+            var groups = new List<(string Nom, List<IArtefact> Items)>();
+            var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var art in Artefacts)
+            {
+                if (!map.TryGetValue(art.Nom, out var idx))
+                {
+                    idx = groups.Count;
+                    map[art.Nom] = idx;
+                    groups.Add((art.Nom, new List<IArtefact>()));
+                }
+                groups[idx].Items.Add(art);
+            }
+
+            if (from < 0 || to < 0 || from >= groups.Count || to >= groups.Count) return false;
+            if (from == to) return false;
+
+            var moving = groups[from];
+            groups.RemoveAt(from);
+            groups.Insert(to, moving);
+
+            var flattened = groups.SelectMany(g => g.Items).ToList();
+            Artefacts.Clear();
+            Artefacts.AddRange(flattened);
+            ui?.Afficher($"Ordre des artefacts mis a jour : {moving.Nom} (x{moving.Items.Count}) passe en position {toIndex1Based}.");
+            return true;
         }
 
         public void DistribuerPoints(IUI? ui)
